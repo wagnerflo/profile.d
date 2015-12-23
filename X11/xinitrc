@@ -21,10 +21,10 @@ export LC_ALL="${LANG}"
 
 # load X resources
        xrdb -merge ${_prfdir}/X11/resources
-try 3f xrdb -merge ${_prfdir}/X11/resources.${_prfenv}
+try 3f xrdb -merge ${_prfdir}/X11/resources.${PROFILE_ENV}
 
 # apply modmap
-try 2f xmodmap ${_prfdir}/X11/modmap.${_prfenv}
+try 2f xmodmap ${_prfdir}/X11/modmap.${PROFILE_ENV}
 
 # start agents
 [ -x "$(which gpg-agent)" ]    && eval "$(gpg-agent --daemon)"
@@ -32,12 +32,12 @@ try 2f xmodmap ${_prfdir}/X11/modmap.${_prfenv}
 [ -x "$(which xscreensaver)" ] && xscreensaver -no-splash &
 
 # custom profile
-if [ -f ${_prfdir}/X11/xprofile.${_prfenv} ]; then
-    . ${_prfdir}/X11/xprofile.${_prfenv}
+if [ -f ${_prfdir}/X11/xprofile.${PROFILE_ENV} ]; then
+    . ${_prfdir}/X11/xprofile.${PROFILE_ENV}
 fi
 
 echo "Environment is:"
 env | sort | sed 's/^/  /'
 
 echo "Executing window manager"
-try 2f exec ${_prfdir}/X11/wm.${_prfenv}
+try 2f exec ${_prfdir}/X11/wm.${PROFILE_ENV}

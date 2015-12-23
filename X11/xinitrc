@@ -1,0 +1,43 @@
+#!/bin/sh
+
+#####################################################################
+# X11/xinitrc: custom X session setup
+
+
+# include common functions
+. ~/.profile.d/common/common.sh
+
+# redirect stdout and -err to logfile
+exec >> ${_logdir}/xinitrc.log
+exec 2>&1
+
+# log info
+echo "--------------------------------------------------------------------------------"
+echo "Starting $(hostname):${0} at $(date)"
+
+# force encoding
+export LANG="en_US.UTF-8"
+export LC_ALL="${LANG}"
+
+# load X resources
+       xrdb -merge ${_prfdir}/X11/resources
+try 3f xrdb -merge ${_prfdir}/X11/resources.${_prfenv}
+
+# apply modmap
+try 2f xmodmap ${_prfdir}/X11/modmap.${_prfenv}
+
+# start agents
+[ -x "$(which gpg-agent)" ]    && eval "$(gpg-agent --daemon)"
+[ -x "$(which ssh-agent)" ]    && eval "$(ssh-agent)"
+[ -x "$(which xscreensaver)" ] && xscreensaver -no-splash &
+
+# custom profile
+if [ -f ${_prfdir}/X11/xprofile.${_prfenv} ]; then
+    . ${_prfdir}/X11/xprofile.${_prfenv}
+fi
+
+echo "Environment is:"
+env | sort | sed 's/^/  /'
+
+echo "Executing window manager"
+try 2f exec ${_prfdir}/X11/wm.${_prfenv}

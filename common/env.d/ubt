@@ -1,0 +1,2 @@
+#!/bin/sh
+hostname -f | grep '\.ub\.uni-tuebingen\.de$'

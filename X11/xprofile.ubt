@@ -1,0 +1,9 @@
+# -*- mode: sh -*-
+
+# DPMS off after 30 minutes; bell off; wallpaper
+xset dpms 0 0 1800
+xset -b
+xsetbg "${HOME}/.i3/wallpapers/1.jpg"
+
+# add key to agent
+ssh-add

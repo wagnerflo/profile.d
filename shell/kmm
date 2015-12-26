@@ -185,6 +185,11 @@ kmm () {
                     ;;
                 display.*)
                     _opts="${_opts} $(pdisplay "${_file#display.}")";;
+                headless)
+                    _opts="${_opts} -serial null -parallel null "
+                    _opts="${_opts} -monitor none -display none "
+                    _opts="${_opts} -vga none"
+                    ;;
                 acpitable.*)
                     _opts="${_opts} $(pacpitable "${_file}")";;
                 optionrom.*)

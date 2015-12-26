@@ -1,0 +1,287 @@
+# -*- mode: sh -*-
+
+#####################################################################
+# profile/kmm: helpers for working kvm
+
+kmm () {
+    local _vmdir _brctl _ip
+
+    usage () {
+        echo "usage: kmm {start,stop,mon,serial} vm"
+    }
+
+    check_pipe () {
+        if [ ! -S "${_vmdir}/.${1}" ]; then
+            echo "kmm: ${1} not available"
+            return 1
+        fi
+    }
+
+    lock_pipe () {
+        check_pipe "${1}" || return 1
+        if [ -e "${_vmdir}/.${1}.lock" ]; then
+            echo "kmm: qemu ${1} already in use"
+            return 1
+        fi
+        touch "${_vmdir}/.${1}.lock"
+    }
+
+    unlock_pipe () {
+        rm -f "${_vmdir}/.${1}.lock"
+    }
+
+    check_mon () { check_pipe "mon"; }
+    check_serial () { check_pipe "serial"; }
+    lock_mon () { lock_pipe "mon"; }
+    lock_serial () { lock_pipe "serial"; }
+    unlock_mon () { unlock_pipe "mon"; }
+    unlock_serial () { unlock_pipe "serial"; }
+
+    start () {
+        pcpu () {
+            IFS="."
+            for part in ${1}; do
+                case "${part}" in
+                    host|qemu64|qemu32) echo -n "-cpu host ";;
+                    *)
+                        if [ "${part}" -eq "${part}" -a "${part}" -gt 1 \
+                             2> /dev/null ]
+                        then
+                            echo -n "-smp ${part} "
+                        fi
+                        ;;
+                esac
+            done
+        }
+
+        pmem () {
+            if [ "${1}" -eq "${1}" -a "${1}" -gt 1 ]
+            then
+                echo -n "-m ${1} "
+            fi
+        }
+
+        prtc () {
+            echo -n "-rtc "
+            IFS="."
+            for part in ${1}; do
+                case "${part}" in
+                    utc|localtime) echo -n "base=${part}";;
+                esac
+            done
+        }
+
+        pdrive () {
+            echo -n "-drive file=${_vmdir}/${1}"
+            IFS="."
+            for part in ${1}; do
+                case "${part}" in
+                    virtio) echo -n ",if=virtio,media=disk";;
+                    ide[0123]) echo -n ",if=ide,index=${part#ide},media=disk";;
+                    cdrom[0123]) echo -n ",if=ide,index=${part#cdrom},media=cdrom";;
+                    scsi) echo -n ",if=scsi,media=disk";;
+                    fd[01]) echo -n ",if=floppy,index=${part#fd},media=floppy";;
+                    nocache) echo -n ",cache=none";;
+                    writeback|wb) echo -n ",cache=writeback";;
+                    unsafe) echo -n ",cache=unsafe";;
+                esac
+            done
+            echo -n " "
+        }
+
+        pdisplay () {
+            IFS="."
+            for part in ${1}; do
+                case "${part}" in
+                    std|cirrus|vmware|qxl|xenfb) echo -n "-vga ${part} ";;
+                    noquit) echo -n "-no-quit ";;
+                    nographic) echo -n "-nographic ";;
+                esac
+            done
+        }
+
+        pusbdev () {
+            echo "-usbdevice ${1} "
+        }
+
+        pacpitable () {
+            local _file
+            _file="${_vmdir}/${1}"
+
+            _od () {
+                od -An $@ "${_file}" | tr -d ' '
+            }
+
+            _odstr () {
+                echo -n \'
+                for item in $(_od -w1 -vto1 $@); do
+                    printf "\\${item}"
+                done
+                echo -n \'
+            }
+
+            tail -c +37 "${_file}" > "${_vmdir}/.${1}.data"
+
+            echo -n "-acpitable data=${_vmdir}/.${1}.data,"
+            echo -n "sig=$(_od -vtc -j0 -N4),"
+            echo -n "rev=$(_od -vtu1 -j8 -N1),"
+            echo -n "oem_id=$(_odstr -j10 -N6),"
+            echo -n "oem_table_id=$(_odstr -j16 -N8),"
+            echo -n "oem_rev=$((0x$(_od -vtx4 -j24 -N4))),"
+            echo -n "asl_compiler_id=$(_odstr -j28 -N4),"
+            echo -n "asl_compiler_rev=$((0x$(_od -vtx4 -j32 -N4))) "
+        }
+
+        pnic () {
+            echo -n "-net nic,vlan=${3}"
+
+            IFS="."
+            for part in ${1}; do
+                case "${part}" in
+[0123456789aAbBcCdDeEfF][0123456789aAbBcCdDeEfF]:\
+[0123456789aAbBcCdDeEfF][0123456789aAbBcCdDeEfF]:\
+[0123456789aAbBcCdDeEfF][0123456789aAbBcCdDeEfF]:\
+[0123456789aAbBcCdDeEfF][0123456789aAbBcCdDeEfF]:\
+[0123456789aAbBcCdDeEfF][0123456789aAbBcCdDeEfF]:\
+[0123456789aAbBcCdDeEfF][0123456789aAbBcCdDeEfF]\
+                    ) echo -n ",macaddr=${part}";;
+                    virtio|e1000|i82559er) echo -n ",model=${part}";;
+                    *) sudo ${_brctl} addif ${part} ${_tap};;
+                esac
+            done
+
+            echo -n " -net tap,script=no,downscript=no"
+            echo -n ",vlan=${3},ifname=${2} "
+        }
+
+        if netstat -lxWn | grep -q "${_vmdir}/.run"; then
+          echo "kmm: vm already running"
+          return 0
+        fi
+
+        local _opts
+        local _tapdevs
+        local _vlan
+        _vlan=0
+        _opts="${_opts} -monitor unix:${_vmdir}/.mon,server,nowait"
+        _opts="${_opts} -monitor unix:${_vmdir}/.run,server,nowait"
+        _opts="${_opts} -daemonize -pidfile ${_vmdir}/.pid"
+        _opts="${_opts} -usb -boot menu=on,splash-time=10000"
+
+        for _file in "${_vmdir}"/*; do
+            _file="$(basename "${_file}")"
+            case "${_file}" in
+                bios)    _opts="${_opts} -bios "${_vmdir}/${_file}"";;
+                cpu.*)   _opts="${_opts} $(pcpu "${_file#cpu.}")";;
+                mem.*)   _opts="${_opts} $(pmem "${_file#mem.}")";;
+                rtc.*)   _opts="${_opts} $(prtc "${_file#rtc.}")";;
+                drive.*) _opts="${_opts} $(pdrive "${_file}")";;
+                usbdevice.*)
+                    _opts="${_opts} $(pusbdev "${_file#usbdevice.}")";;
+                serial)
+                    _opts="${_opts} -serial "
+                    _opts="${_opts} unix:${_vmdir}/.serial,server,nowait"
+                    ;;
+                display.*)
+                    _opts="${_opts} $(pdisplay "${_file#display.}")";;
+                acpitable.*)
+                    _opts="${_opts} $(pacpitable "${_file}")";;
+                optionrom.*)
+                    _opts="${_opts} -option-rom "${_vmdir}/${_file}"";;
+                nic.*)
+                    sudo ${_ip} tuntap add mode tap user ${UID}
+                    _tap=$(ip -o tuntap | grep "^tap.*user ${UID}" | head -1 | cut -d: -f1)
+                    _tapdevs="${_tapdevs} ${_tap}"
+                    _opts="${_opts} $(pnic "${_file#nic.}" ${_tap} ${_vlan})"
+                    sudo ${_ip} link set up dev ${_tap}
+                    _vlan=$((${_vlan} + 1))
+                    ;;
+            esac
+        done
+
+        # start kvm as daemon
+        eval qemu-system-x86_64 -enable-kvm "${_opts}" || return $?
+
+        (
+            # close stdin,stdout,stderr
+            exec 3>&-
+            exec 2>&-
+            exec 1>&-
+
+            # attach to the monitor; this will block until the vm closes
+            socat -u UNIX-CONNECT:"${_vmdir}/.run" FILE:/dev/null
+
+            # cleanup
+            for tap in ${_tapdevs}; do
+                ip tuntap del mode tap dev ${tap} >/dev/null
+            done
+
+            rm -f "${_vmdir}"/.pid
+            rm -f "${_vmdir}"/.mon
+            rm -f "${_vmdir}"/.serial
+            rm -f "${_vmdir}"/.acpitable*.data
+            rm -f "${_vmdir}"/.run
+        ) &
+
+        return 0
+    }
+
+    stop () {
+        lock_mon || return 1
+        echo "system_powerdown" | \
+            socat STDIN UNIX-CONNECT:"${_vmdir}/.mon"
+        unlock_mon
+    }
+
+    quit () {
+        lock_mon || return 1
+        echo "quit" | socat STDIN UNIX-CONNECT:"${_vmdir}/.mon"
+        unlock_mon
+    }
+
+    connect_mon () {
+        lock_mon || return 1
+        echo "kmm: connecting to qemu monitor (use ^C to close)"
+        socat -,raw,echo=0,escape=0x03 \
+            UNIX-CONNECT:"${_vmdir}/.mon",flock-ex
+        unlock_mon
+        echo
+    }
+
+    connect_serial () {
+        lock_serial || return 1
+        echo "kmm: connecting to qemu serial console (use ^O to close)"
+        socat -,raw,echo=0,escape=0x0f \
+            UNIX-CONNECT:"${_vmdir}/.serial",flock-ex
+        unlock_serial
+        echo
+    }
+
+    if [ -z "${1}" -o -z "${2}" ]; then
+        usage
+        return 1
+    fi
+
+    _vmdir="${HOME}/.kmm/${2}"
+    _brctl="$(which brctl)"
+    _ip="$(which ip)"
+
+    if [ ! -d "${_vmdir}" ]; then
+        echo "kmm: expected ${_vmdir} to be a directory"
+        return 1
+    fi
+
+    case "${1}" in
+        start|run) start;;
+        stop)      stop;;
+        kill|quit) quit;;
+        mon*)      connect_mon;;
+        ser*)      connect_serial;;
+        *)         usage;;
+    esac
+
+}
+
+if [ "${_}" == "${0}" ]; then
+    kmm "${@}"
+fi

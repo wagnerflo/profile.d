@@ -1,0 +1,38 @@
+# -*- mode: sh -*-
+
+#####################################################################
+# .profile: this provides general (not bash specific) config
+#
+
+# include common functions
+. ~/.profile.d/common/common.sh
+
+# handle EDITOR and PAGER selection
+for editor in emacs zile nano; do
+    if [ -x "$(which ${editor})" ]; then
+        EDITOR="${editor}"
+        export EDITOR
+        break
+    fi
+done
+
+for pager in less; do
+    if [ -x "$(which ${pager})" ]; then
+        PAGER="${pager} -R"
+        export PAGER
+        alias less="${PAGER}"
+        break
+    fi
+done
+
+# color handling
+case "$(uname)" in
+    Linux)
+        alias ls='ls --color=auto'
+        alias grep='grep --color=auto'
+        ;;
+esac
+
+# functions for helper scripts (no need to play with PATH this way)
+kmm () { ${_prfdir}/shell/kmm "${@}"; }
+ipmi () { ${_prfdir}/shell/ipmi "${@}"; }

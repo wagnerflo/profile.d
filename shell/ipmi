@@ -1,0 +1,47 @@
+# -*- mode: sh -*-
+
+#####################################################################
+# profile/ipmi: helpers for working with ipmi
+
+ipmi () {
+    local _hostname
+    local _ipmitool
+    local _command
+
+    if [ -z "${1}" ]; then
+        echo "usage: ipmi hostname [shortcut]"
+        return 1
+    fi
+
+    for _path in /usr/sbin/ipmitool /usr/bin/ipmitool; do
+        if [ -x ${_path} ]; then
+            _ipmitool=${_path}
+        fi
+    done
+
+    if [ -z "${_ipmitool}" ]; then
+        echo "error: ipmitool not found"
+        exit 1
+    fi
+
+    _hostname=bmc.${1}
+    shift
+
+    case "${@}" in
+        sol)   _command="sol activate";;
+        off)   _command="power soft";;
+        kill)  _command="power off";;
+        on)    _command="power on";;
+        cycle) _command="power cycle";;
+        "")    _command="shell";;
+        *)     _command="${@}";;
+    esac
+
+    if ping -c1 ${_hostname} >/dev/null; then
+        ${_ipmitool} -I lanplus -U $(whoami) -H ${_hostname} ${_command}
+    fi
+}
+
+if [ "${_}" == "${0}" ]; then
+    ipmi "${@}"
+fi

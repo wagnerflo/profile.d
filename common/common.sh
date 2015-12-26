@@ -12,6 +12,7 @@ _logdir=~/.local/log
 # detect and set environment if no already
 if [ -z ${PROFILE_ENV+x} ]; then
     case "$(hostname -f)" in
+        naclador.mos32.de)     PROFILE_ENV=naclador;;
         *.ub.uni-tuebingen.de) PROFILE_ENV=ubt;;
         *)                     PROFILE_ENV=unknown;;
     esac

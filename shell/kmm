@@ -200,6 +200,9 @@ kmm () {
                     _opts="${_opts} $(pnic "${_file#nic.}" ${_nid})"
                     _nid=$((${_nid} + 1))
                     ;;
+                redir.*)
+                    _opts="${_opts} -redir ${_file#redir.}"
+                    ;;
             esac
         done
 

@@ -1,0 +1,16 @@
+# {ba,z}sh
+ln -s .profile.d/shell/profile_bash ~/.bash_profile
+ln -s .profile.d/shell/profile_bash ~/.bashrc
+ln -s .profile.d/shell/profile_sh ~/.profile
+
+# emacs
+ln -s .profile.d/emacs/emacs.el ~/.emacs
+
+# git
+ln -s .profile.d/git/gitconfig ~/.gitconfig
+
+# mercurial
+ln -s .profile.d/mercurial/hgrc ~/.hgrc
+
+# X11
+ln -s .profile.d/X11/xinitrc ~/.xinitrc

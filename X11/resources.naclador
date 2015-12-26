@@ -1,0 +1,2 @@
+urxvt*.font: xft:Bitstream Vera Sans Mono:style=Roman:size=8
+urxvt*.letterSpace: -1

@@ -36,3 +36,10 @@ esac
 # functions for helper scripts (no need to play with PATH this way)
 kmm () { ${_prfdir}/shell/kmm "${@}"; }
 ipmi () { ${_prfdir}/shell/ipmi "${@}"; }
+
+# #
+# if [ -f ${_prfdir}/X11/xprofile.${PROFILE_ENV} ]; then
+#     . ${_prfdir}/X11/xprofile.${PROFILE_ENV}
+# fi
+
+try 2f . ${_prfdir}/shell/profile_sh.${PROFILE_ENV}

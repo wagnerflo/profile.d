@@ -1,3 +1,6 @@
+# run wicd gtk client
+exec --no-startup-id wicd-gtk -t
+
 # display workspace bar
 bar {
   output eDP1

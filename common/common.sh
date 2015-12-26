@@ -8,7 +8,6 @@
 _prfdir=~/.profile.d
 _logdir=~/.local/log
 
-
 # detect and set environment if no already
 if [ -z ${PROFILE_ENV+x} ]; then
     case "$(hostname -f)" in
@@ -20,10 +19,8 @@ if [ -z ${PROFILE_ENV+x} ]; then
     export PROFILE_ENV
 fi
 
-
 # create log directory
 mkdir -p ${_logdir}
-
 
 # helper functions
 testcmd() {

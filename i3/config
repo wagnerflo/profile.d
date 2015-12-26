@@ -35,7 +35,7 @@ bindsym $m+$right focus right
 bindsym $m+p focus parent
 bindsym $m+i focus child
 
-# alternatively, you can use the cursor keys:
+# alternatively, you can use the cursor keys
 bindsym $m+Left focus left
 bindsym $m+Down focus down
 bindsym $m+Up focus up
@@ -47,7 +47,7 @@ bindsym $m+Shift+$down move down
 bindsym $m+Shift+$up move up
 bindsym $m+Shift+$right move right
 
-# alternatively, you can use the cursor keys:
+# alternatively, you can use the cursor keys
 bindsym $m+Shift+Left move left
 bindsym $m+Shift+Down move down
 bindsym $m+Shift+Up move up
@@ -134,3 +134,4 @@ bindsym $m+r mode "resize"
 
 # per window configuration
 for_window [class="qemu"] floating enable
+for_window [instance="mixxx"] move container to workspace 3, fullscreen

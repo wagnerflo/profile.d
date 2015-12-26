@@ -12,8 +12,8 @@ floating_modifier $m
 # start stuff
 bindsym $m+Return exec urxvt
 bindsym $m+e exec urxvt -e emacs
-bindsym $m+dead_circumflex exec dmenu_run
-bindsym $m+asciicircum exec dmenu_run
+bindsym $m+dead_circumflex exec --no-startup-id ~/.profile.d/i3/dmenu_run
+bindsym $m+asciicircum exec --no-startup-id ~/.profile.d/i3/dmenu_run
 bindsym Control+Mod1+Delete exec xscreensaver-command -lock
 
 # kill focused window

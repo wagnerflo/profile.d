@@ -11,6 +11,7 @@ _logdir=~/.local/log
 if [ -z ${PROFILE_ENV+x} ]
 then
     case "$(hostname -f)" in
+        teclador.*)            PROFILE_ENV=teclador;;
         naclador.mos32.de)     PROFILE_ENV=naclador;;
         *.ub.uni-tuebingen.de) PROFILE_ENV=ubt;;
         *)                     PROFILE_ENV=unknown;;

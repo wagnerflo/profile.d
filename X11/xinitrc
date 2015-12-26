@@ -3,7 +3,6 @@
 #####################################################################
 # X11/xinitrc: custom X session setup
 
-
 # include common functions
 . ~/.profile.d/common/common.sh
 
@@ -40,4 +39,4 @@ echo "Environment is:"
 env | sort | sed 's/^/  /'
 
 echo "Executing window manager"
-try 2f exec ${_prfdir}/X11/wm.${PROFILE_ENV}
+try 2e exec ${_prfdir}/X11/wm.${PROFILE_ENV}

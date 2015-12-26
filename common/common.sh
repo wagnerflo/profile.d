@@ -9,20 +9,12 @@ _prfdir=~/.profile.d
 _logdir=~/.local/log
 
 
-# detect and set environment
+# detect and set environment if no already
 if [ -z ${PROFILE_ENV+x} ]; then
-    PROFILE_ENV=unknown
-
-    for script in ~/.profile.d/common/env.d/*; do
-        # skip if not executable
-        [ ! -x "${script}" ] && continue
-
-        # run script, set variable if successful and exit
-        if "${script}" >/dev/null 2>&1; then
-            PROFILE_ENV=$(basename "${script}")
-            break
-        fi
-    done
+    case "$(hostname -f)" in
+        *.ub.uni-tuebingen.de) PROFILE_ENV=ubt;;
+        *)                     PROFILE_ENV=unknown;;
+    esac
 
     export PROFILE_ENV
 fi

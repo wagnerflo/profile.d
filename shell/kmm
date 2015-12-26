@@ -134,7 +134,8 @@ kmm () {
         }
 
         pnic () {
-            echo -n "-net nic,vlan=${3}"
+            local _netdev
+            local _device
 
             IFS="."
             for part in ${1}; do
@@ -145,14 +146,15 @@ kmm () {
 [0123456789aAbBcCdDeEfF][0123456789aAbBcCdDeEfF]:\
 [0123456789aAbBcCdDeEfF][0123456789aAbBcCdDeEfF]:\
 [0123456789aAbBcCdDeEfF][0123456789aAbBcCdDeEfF]\
-                    ) echo -n ",macaddr=${part}";;
-                    virtio|e1000|i82559er) echo -n ",model=${part}";;
-                    *) sudo ${_brctl} addif ${part} ${_tap};;
+                    ) _device="${_device},mac=${part}";;
+                    e1000|i82559er) _device="${part}${_device}";;
+                    virtio) _device="virtio-net-pci${_device}";;
+                    user) _netdev="user${_netdev}";;
                 esac
             done
 
-            echo -n " -net tap,script=no,downscript=no"
-            echo -n ",vlan=${3},ifname=${2} "
+            echo -n "-netdev ${_netdev},id=net${2} "
+            echo -n "-device ${_device},netdev=net${2}"
         }
 
         if netstat -lxWn | grep -q "${_vmdir}/.run"; then
@@ -162,8 +164,8 @@ kmm () {
 
         local _opts
         local _tapdevs
-        local _vlan
-        _vlan=0
+        local _nid
+        _nid=0
         _opts="${_opts} -monitor unix:${_vmdir}/.mon,server,nowait"
         _opts="${_opts} -monitor unix:${_vmdir}/.run,server,nowait"
         _opts="${_opts} -daemonize -pidfile ${_vmdir}/.pid"
@@ -195,12 +197,8 @@ kmm () {
                 optionrom.*)
                     _opts="${_opts} -option-rom "${_vmdir}/${_file}"";;
                 nic.*)
-                    sudo ${_ip} tuntap add mode tap user ${UID}
-                    _tap=$(ip -o tuntap | grep "^tap.*user ${UID}" | head -1 | cut -d: -f1)
-                    _tapdevs="${_tapdevs} ${_tap}"
-                    _opts="${_opts} $(pnic "${_file#nic.}" ${_tap} ${_vlan})"
-                    sudo ${_ip} link set up dev ${_tap}
-                    _vlan=$((${_vlan} + 1))
+                    _opts="${_opts} $(pnic "${_file#nic.}" ${_nid})"
+                    _nid=$((${_nid} + 1))
                     ;;
             esac
         done

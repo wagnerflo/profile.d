@@ -1,0 +1,5 @@
+# display workspace bar
+bar {
+  output DVI-I-1
+  status_command i3status -c ~/.profile.d/i3/i3status.conf
+}

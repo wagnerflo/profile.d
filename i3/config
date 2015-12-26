@@ -1,8 +1,5 @@
 # i3 config file (v4)
 
-# turn dual monitors on one X11 screen into to outputs
-fake-outputs 1280x1024+0+0,1280x1024+1280+0
-
 # set font and size
 font pango:DejaVu Sans Mono 9
 
@@ -16,6 +13,7 @@ floating_modifier $m
 bindsym $m+Return exec urxvt
 bindsym $m+e exec urxvt -e emacs
 bindsym $m+dead_circumflex exec dmenu_run
+bindsym $m+asciicircum exec dmenu_run
 bindsym Control+Mod1+Delete exec xscreensaver-command -lock
 
 # kill focused window
@@ -100,43 +98,39 @@ bindsym $m+Shift+9 move container to workspace 9
 bindsym $m+Shift+0 move container to workspace 10
 
 # reload the configuration file
-bindsym $m+Shift+c reload
+bindsym $m+Shift+c exec --no-startup-id ~/.profile.d/i3/mkconfig; reload
 
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $m+Shift+r restart
+bindsym $m+Shift+r exec --no-startup-id ~/.profile.d/i3/mkconfig; restart
 
 # exit i3 (logs you out of your X session)
 bindsym $m+Shift+e exec "i3-nagbar -t warning -m 'Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
-  # Pressing left will shrink the window’s width.
-  # Pressing right will grow the window’s width.
-  # Pressing up will shrink the window’s height.
-  # Pressing down will grow the window’s height.
-  bindsym $left       resize shrink width 10 px or 10 ppt
-  bindsym $down       resize grow height 10 px or 10 ppt
-  bindsym $up         resize shrink height 10 px or 10 ppt
-  bindsym $right      resize grow width 10 px or 10 ppt
+  # shrink the window’s width
+  bindsym $left  resize shrink width 10 px or 10 ppt
+  bindsym Left   resize shrink width 10 px or 10 ppt
 
-  # same bindings, but for the arrow keys
-  bindsym Left        resize shrink width 10 px or 10 ppt
-  bindsym Down        resize grow height 10 px or 10 ppt
-  bindsym Up          resize shrink height 10 px or 10 ppt
-  bindsym Right       resize grow width 10 px or 10 ppt
+  # grow the window’s width
+  bindsym $right resize grow width 10 px or 10 ppt
+  bindsym Right  resize grow width 10 px or 10 ppt
+
+  # shrink the window’s height
+  bindsym $up    resize shrink height 10 px or 10 ppt
+  bindsym Up     resize shrink height 10 px or 10 ppt
+
+  # grow the window’s height
+  bindsym $down  resize grow height 10 px or 10 ppt
+  bindsym Down   resize grow height 10 px or 10 ppt
 
   # back to normal: Enter or Escape
   bindsym Return mode "default"
   bindsym Escape mode "default"
 }
 
+# enter resize mode
 bindsym $m+r mode "resize"
-
-# display workspace bar
-bar {
-  output fake-1
-  status_command i3status -c ~/.profile.d/i3/i3status.conf
-}
 
 # per window configuration
 for_window [class="qemu"] floating enable

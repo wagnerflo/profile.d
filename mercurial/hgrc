@@ -1,0 +1,30 @@
+%include .profile.d/mercurial/hgrc.local
+
+[ui]
+ssh = ssh -C
+username = Florian Wagner <florian@wagner-flo.net>
+
+[diff]
+git = True
+
+[alias]
+untrack = rm -Af
+status = status -C
+top = log -r tip:-10
+tag = tag -e
+
+[pager]
+attend = annotate,cat,diff,export,glog,help,log,qdiff,top,tip,pdiff
+
+[mq]
+git = yes
+
+[extensions]
+color =
+convert =
+graphlog =
+pager =
+purge =
+rebase =
+record =
+transplant =

@@ -1,0 +1,13 @@
+[user]
+name = Florian Wagner
+email = florian@wagner-flo.net
+
+[push]
+default = simple
+
+[alias]
+st = status
+tags = log --no-walk --tags --pretty='%h %d  %s'
+
+[include]
+path = ~/.profile.d/git/gitconfig.local

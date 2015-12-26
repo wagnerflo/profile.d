@@ -19,6 +19,24 @@ if [ -z ${PROFILE_ENV+x} ]; then
     export PROFILE_ENV
 fi
 
+# create symlinks
+if [ ${PROFILE_ENV} != "unknown" ]
+then
+    for _item in git/gitconfig
+    do
+        _local=${_prfdir}/${_item}.local
+        _custom=${_prfdir}/${_item}.${PROFILE_ENV}
+
+        if [ ! -L "${_local}" ]; then
+            [ -f "${_custom}" ] && \
+                ln -s "$(basename ${_custom})" "${_local}" || \
+                ln -s "$(basename ${_item}.empty)" "${_local}"
+        fi
+    done
+fi
+
+unset -v _item _local _custom
+
 # create log directory
 mkdir -p ${_logdir}
 

@@ -37,9 +37,5 @@ esac
 kmm () { ${_prfdir}/shell/kmm "${@}"; }
 ipmi () { ${_prfdir}/shell/ipmi "${@}"; }
 
-# #
-# if [ -f ${_prfdir}/X11/xprofile.${PROFILE_ENV} ]; then
-#     . ${_prfdir}/X11/xprofile.${PROFILE_ENV}
-# fi
-
+# load custom shell config
 try 2f . ${_prfdir}/shell/profile_sh.${PROFILE_ENV}

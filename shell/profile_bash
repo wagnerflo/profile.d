@@ -1,7 +1,7 @@
 # -*- mode: sh -*-
 
 #####################################################################
-# .bash_profile: this provides bash specific config
+# profile_bash: this provides bash specific config
 #
 
 # include common shell functionallity

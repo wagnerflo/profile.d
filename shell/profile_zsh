@@ -1,0 +1,49 @@
+# -*- mode: sh -*-
+
+#####################################################################
+# profile_zsh: this provides bash specific config
+#
+
+# include common shell functionallity
+. ~/.profile.d/shell/profile_sh
+
+setopt \
+  bashautolist \
+  extendedglob \
+  globdots \
+  longlistjobs \
+  noautoparamslash \
+  nobeep \
+  nocorrect \
+  nocorrectall \
+  nohup \
+  nopromptcr \
+  norecexact \
+  pushdsilent \
+  nopushdtohome \
+  listambiguous \
+  HIST_NO_STORE \
+  HIST_IGNORE_DUPS \
+  HIST_REDUCE_BLANKS
+
+setopt INC_APPEND_HISTORY 2>/dev/null
+
+# emacs like key bindings
+bindkey -e
+
+# add some keys
+bindkey "^[[3~" delete-char
+bindkey "^[[7~" beginning-of-line
+bindkey "^[[8~" end-of-line
+bindkey '\e^[[C' forward-word
+bindkey '\e^[[D' backward-word
+
+# promt
+if [ "${TERM}" != "dumb" ]; then
+    export PS1='%B%40<..<%4~%b '
+    precmd () {
+        print -Pn "\e]2;urxvt :: $(hostname -s)\a"
+    }
+else
+    export PS1='> '
+fi

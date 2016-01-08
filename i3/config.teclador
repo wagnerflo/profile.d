@@ -5,4 +5,8 @@ exec --no-startup-id wicd-gtk -t
 bar {
   output eDP1
   status_command i3status -c ~/.profile.d/i3/i3status.conf
+  separator_symbol " / "
+  colors {
+    separator #ffffff
+  }
 }

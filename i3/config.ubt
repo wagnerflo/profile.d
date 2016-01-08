@@ -5,4 +5,8 @@ fake-outputs 1280x1024+0+0,1280x1024+1280+0
 bar {
   output fake-1
   status_command i3status -c ~/.profile.d/i3/i3status.conf
+  separator_symbol " / "
+  colors {
+    separator #ffffff
+  }
 }

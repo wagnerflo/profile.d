@@ -45,5 +45,6 @@ if [ "${TERM}" != "dumb" ]; then
         print -Pn "\e]2;urxvt :: $(hostname -s)\a"
     }
 else
+    unsetopt zle
     export PS1='> '
 fi

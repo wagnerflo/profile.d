@@ -40,7 +40,7 @@ bindkey '\e^[[D' backward-word
 
 # promt
 if [ "${TERM}" != "dumb" ]; then
-    export PS1='%B%40<..<%4~%b '
+    export PS1='%m %B%40<..<%4~%b '
     precmd () {
         print -Pn "\e]2;urxvt :: $(hostname -s)\a"
     }

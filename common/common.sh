@@ -7,6 +7,10 @@
 _prfdir=~/.profile.d
 _logdir=~/.local/log
 
+# force encoding
+export LANG="en_US.UTF-8"
+export LC_ALL="${LANG}"
+
 # detect and set environment if no already
 if [ -z ${PROFILE_ENV+x} ]
 then

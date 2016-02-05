@@ -1,6 +1,6 @@
 # display workspace bar
 bar {
-  output DVI-I-1
+  output DVI-0
   status_command i3status -c ~/.profile.d/i3/i3status.conf
   separator_symbol " / "
   colors {

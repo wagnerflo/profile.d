@@ -4,7 +4,7 @@ exec --no-startup-id wicd-gtk -t
 # display workspace bar
 bar {
   output eDP1
-  status_command i3status -c ~/.profile.d/i3/i3status.conf
+  status_command i3status -c ~/.profile.d/i3/i3status.teclador.conf
   separator_symbol " / "
   colors {
     separator #ffffff

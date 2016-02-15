@@ -1,3 +1,2 @@
-mixxx () { ~/src/mixxx-1.11/mixxx/mixxx; }
 ripcd () { icedax -D /dev/sr0 -x -paranoia -H -B; }
 splitcue () { cue2tracks -R -c flac -o "%N - %t" "$1"; }

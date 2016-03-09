@@ -134,4 +134,5 @@ bindsym $m+r mode "resize"
 
 # per window configuration
 for_window [class="qemu"] floating enable
+for_window [instance="^pinentry"] floating enable
 for_window [instance="mixxx"] move container to workspace 3, fullscreen

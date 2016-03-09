@@ -1,13 +1,19 @@
 [user]
 name = Florian Wagner
 email = florian@wagner-flo.net
+signingkey = 0A76A4FC
 
 [push]
 default = simple
 
+[commit]
+gpgsign = true
+
 [alias]
 st = status
+sdiff = diff --staged
 tags = log --no-walk --tags --pretty='%h %d  %s'
+oneline = log --graph --decorate --oneline
 
 [include]
 path = ~/.profile.d/git/gitconfig.local

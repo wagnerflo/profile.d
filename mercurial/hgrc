@@ -1,5 +1,3 @@
-%include .profile.d/mercurial/hgrc.local
-
 [ui]
 ssh = ssh -C
 username = Florian Wagner <florian@wagner-flo.net>
@@ -28,3 +26,5 @@ purge =
 rebase =
 record =
 transplant =
+
+%include ~/.profile.d/mercurial/hgrc.local

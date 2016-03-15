@@ -1,7 +1,7 @@
 [user]
 name = Florian Wagner
 email = florian@wagner-flo.net
-signingkey = 0A76A4FC
+signingkey = 1F23ABC4
 
 [push]
 default = simple

@@ -10,3 +10,6 @@ bar {
     separator #ffffff
   }
 }
+
+# per app settings
+for_window [instance="claws-mail"] move container to workspace "2: mail"

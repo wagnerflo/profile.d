@@ -13,3 +13,4 @@ bar {
 
 # per app settings
 for_window [instance="claws-mail"] move container to workspace "2: mail"
+for_window [instance="claws-mail" window_role="prefs_filtering"] floating disable

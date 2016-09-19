@@ -1,2 +1,5 @@
 [user]
 email = fl.wagner@uni-tuebingen.de
+
+[commit]
+gpgsign = false

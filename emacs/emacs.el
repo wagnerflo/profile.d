@@ -149,6 +149,8 @@
 
 ;; ess
 (require 'ess-site nil 'noerror)
+(if (featurep 'ess-site)
+  (ess-toggle-underscore nil))
 
 ;; php-mode
 (autoload 'php-mode "php-mode" "Major mode for editing php code." t)

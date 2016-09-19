@@ -147,8 +147,8 @@
 ;; use js-mode for .json files
 (add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
 
-;; ledger-mode
-(require 'ledger)
+;; ess
+(require 'ess-site nil 'noerror)
 
 ;; php-mode
 (autoload 'php-mode "php-mode" "Major mode for editing php code." t)

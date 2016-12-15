@@ -156,6 +156,11 @@
 (autoload 'php-mode "php-mode" "Major mode for editing php code." t)
 (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
 
+;; python-mode
+(add-hook 'python-mode-hook
+  (lambda ()
+    (setq-local completion-at-point-functions nil)))
+
 ;; commandline switch for ediff mode
 (add-to-list 'command-switch-alist
   '("-diff" . (lambda (switch)

@@ -1,5 +1,5 @@
 TMPDIR="/var/tmp"
-AURCOMMENT=2
+AURCOMMENT=0
 AURUPGRADE=1
 BUILD_NOCONFIRM=1   # Only prompt for editing files
 EDITFILES=0

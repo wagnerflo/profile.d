@@ -10,6 +10,7 @@ default = simple
 gpgsign = true
 
 [alias]
+br = branch -vv
 st = status
 sdiff = diff --staged
 tags = log --no-walk --tags --pretty='%h %d  %s'

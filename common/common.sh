@@ -11,13 +11,14 @@ _logdir=~/.local/log
 export LANG="en_US.UTF-8"
 export LC_ALL="${LANG}"
 
+# find hostname utility
+for _hostname in inetutils-hostname hostname; do
+    which ${_hostname} >/dev/null 2>&1 && break
+done
+
 # detect and set environment if no already
 if [ -z ${PROFILE_ENV+x} ]
 then
-    for _hostname in inetutils-hostname hostname; do
-        which ${_hostname} >/dev/null 2>&1 && break
-    done
-
     case "$(${_hostname} -f)" in
         teclador.*)            PROFILE_ENV=teclador;;
         naclador.mos32.de)     PROFILE_ENV=naclador;;

@@ -14,7 +14,11 @@ export LC_ALL="${LANG}"
 # detect and set environment if no already
 if [ -z ${PROFILE_ENV+x} ]
 then
-    case "$(hostname -f)" in
+    for _hostname in inetutils-hostname hostname; do
+        which ${_hostname} >/dev/null 2>&1 && break
+    done
+
+    case "$(${_hostname} -f)" in
         teclador.*)            PROFILE_ENV=teclador;;
         naclador.mos32.de)     PROFILE_ENV=naclador;;
         *.ub.uni-tuebingen.de) PROFILE_ENV=ubt;;

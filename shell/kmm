@@ -3,7 +3,7 @@
 #####################################################################
 # profile/kmm: helpers for working kvm
 
-kmm () {
+main () {
     local _vmdir _brctl _ip
 
     usage () {
@@ -150,6 +150,7 @@ kmm () {
                     e1000|i82559er) _device="${part}${_device}";;
                     virtio) _device="virtio-net-pci${_device}";;
                     user) _netdev="user${_netdev}";;
+                    redir=*) _netdev="${_netdev},hostfwd=tcp:${part#redir=}";;
                 esac
             done
 
@@ -199,9 +200,6 @@ kmm () {
                 nic.*)
                     _opts="${_opts} $(pnic "${_file#nic.}" ${_nid})"
                     _nid=$((${_nid} + 1))
-                    ;;
-                redir.*)
-                    _opts="${_opts} -redir ${_file#redir.}"
                     ;;
             esac
         done
@@ -289,6 +287,4 @@ kmm () {
 
 }
 
-if [ "${_}" == "${0}" ]; then
-    kmm "${@}"
-fi
+main "${@}"

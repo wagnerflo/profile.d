@@ -39,6 +39,10 @@ bindkey "${terminfo[kend]}"  end-of-line
 bindkey '\e^[[C' forward-word
 bindkey '\e^[[D' backward-word
 
+# make forward/backword-word work in tmux
+bindkey "^[[1;3C" forward-word
+bindkey "^[[1;3D" backward-word
+
 # promt
 if [ "${TERM}" != "dumb" ]; then
     export PS1='%m %B%40<..<%4~%b '

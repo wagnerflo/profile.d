@@ -32,9 +32,9 @@ setopt INC_APPEND_HISTORY 2>/dev/null
 bindkey -e
 
 # add some keys
-bindkey "^[[3~" delete-char
-bindkey "^[[7~" beginning-of-line
-bindkey "^[[8~" end-of-line
+bindkey "${terminfo[kbs]}"   delete-char
+bindkey "${terminfo[khome]}" beginning-of-line
+bindkey "${terminfo[kend]}"  end-of-line
 bindkey '\e^[[C' forward-word
 bindkey '\e^[[D' backward-word
 

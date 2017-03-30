@@ -1,6 +1,0 @@
-clear Mod1
-clear Mod4
-keycode  64 = Meta_L
-keycode 115 = Alt_L
-add Mod4 = Alt_L
-add Mod1 = Meta_L

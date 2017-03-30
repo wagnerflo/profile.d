@@ -16,5 +16,8 @@ ln -s .profile.d/mercurial/hgrc ~/.hgrc
 # X11
 ln -s .profile.d/X11/xinitrc ~/.xinitrc
 
+# tmux
+ln -s .profile.d/tmux/tmux.conf ~/.tmux.conf
+
 # on arch linux
 ln -s .profile.d/archlinux/yaourtrc ~/.yaourtrc

@@ -1,8 +1,0 @@
-set -g default-terminal "screen-256color"
-set-window-option -g xterm-keys on
-
-# === SESSIONS ===
-%if #{==,#{host_short},nuc}
-  new-session -d -s logscan \
-    tail -F /var/log/all.log | stdbuf -iL -oL -eL logscan | stdbuf -iL -oL -eL grep ^\[^aPdfnrzl\]
-%endif

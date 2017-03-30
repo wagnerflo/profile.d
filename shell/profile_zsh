@@ -33,7 +33,7 @@ bindkey -e
 
 # add some keys
 bindkey "${terminfo[kdch1]}" delete-char
-bindkey "${terminfo[kbs]}"   backspace-delete-char
+bindkey "${terminfo[kbs]}"   backward-delete-char
 bindkey "${terminfo[khome]}" beginning-of-line
 bindkey "${terminfo[kend]}"  end-of-line
 bindkey '\e^[[C' forward-word

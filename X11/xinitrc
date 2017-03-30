@@ -34,10 +34,11 @@ fi
 echo "Environment is:"
 env | sort | sed 's/^/  /'
 
-if [ -x "$(which xsetbg)" -a -d ~/.local/share/wallpapers ]; then
+if [ -x "$(which display)" -a -d ~/.local/share/wallpapers ]; then
     echo "Setting background image"
-    xsetbg $(find ~/.local/share/wallpapers -maxdepth 1 -type f | \
-                    sort -R | head -n1)
+    display -window root \
+            $(find ~/.local/share/wallpapers -maxdepth 1 -type f | \
+                  sort -R | head -n1)
 fi
 
 echo "Executing window manager"

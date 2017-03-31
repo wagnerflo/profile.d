@@ -14,8 +14,10 @@ _logdir=~/.local/log
 export LANG="en_US.UTF-8"
 export LC_ALL="${LANG}"
 
-# determine fully-qualified host name
-export FQHN="$("$(find_path inetutils-hostname hostname)" -f)"
+# determine short and fully-qualified host name
+_hostname="$(find_path inetutils-hostname hostname)"
+export HOSTNAME="$("${_hostname}" -s)"
+export FQHN="$("${_hostname}" -f)"
 
 # detect and set environment if no already
 if [ -z ${PROFILE_ENV+x} ]
@@ -57,7 +59,7 @@ then
         fi
 
         _local=${_prfdir}/${_item}.host.local
-        _custom=${_prfdir}/${_item}.host.${PROFILE_ENV}
+        _custom=${_prfdir}/${_item}.host.${HOSTNAME}
 
         if [ ! -L "${_local}" ]; then
             [ -f "${_custom}" ] && \
@@ -67,7 +69,7 @@ then
     done
 fi
 
-unset -v _item _local _custom
+unset -v _hostname _item _local _custom
 
 # create log directory
 mkdir -p ${_logdir}

@@ -15,13 +15,12 @@ try() {
         _pri=$(echo ${_item} | sed -n 's/^\([0-9]\{1,\}\)\([efdx]\)$/\2/p')
 
         if [ -z "${_arg}" -o -z "${_pri}" ]; then
-            echo "invalid test: ${_item}"
+            echo "invalid test: ${_item}" >&2
             return 1
         fi
 
         eval _arg=\${${_arg}}
         if ! test -${_pri} ${_arg}; then
-            echo "failed test: -${_pri} ${_arg}"
             return $(printf %d \'${_pri})
         fi
     done

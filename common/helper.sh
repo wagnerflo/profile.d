@@ -28,13 +28,9 @@ try() {
     "${@}"
 }
 
-onpath () {
-    which "${1}" >/dev/null 2>&1
-}
-
 find_path () {
     for _option in ${@}; do
-        _option="$(which ${_option})"
+        _option="$(command -v ${_option})"
         if [ $? -eq 0 ]; then
             echo ${_option}
             return

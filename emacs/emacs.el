@@ -37,6 +37,14 @@
           (dired-single-buffer ".."))))
     ))
 
+;; use emacs implementation of ls to avoid problems on operating
+;; systems not supporting ls --dired
+(setq ls-lisp-use-insert-directory-program nil)
+(require 'ls-lisp)
+
+;; make tramp faster on first connection
+(setq tramp-ssh-controlmaster-options "-o ControlMaster=auto")
+
 ;; up/down keys
 (global-set-key [next]
   (lambda () (interactive)

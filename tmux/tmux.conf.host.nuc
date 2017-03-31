@@ -1,3 +1,4 @@
-new-session -ds logscan \
-  tail -F /var/log/all.log | stdbuf -iL -oL -eL logscan | \
-    stdbuf -iL -oL -eL grep ^\[^aPdfnrzl\]
+new-session -d -s logscan -n logscan \
+  'tail -F /var/log/all.log | stdbuf -iL -oL -eL logscan | \
+     stdbuf -iL -oL -eL grep ^\[^aPdfnrzl\]'
+set -t logscan status off

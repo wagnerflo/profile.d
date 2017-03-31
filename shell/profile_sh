@@ -40,3 +40,6 @@ ipmi () { ${_prfdir}/shell/ipmi "${@}"; }
 # load custom shell config
 try 2f . ${_prfdir}/shell/profile_sh.${PROFILE_ENV}
 try 2f . ${_prfdir}/shell/profile_sh.unversioned
+
+# start tmux
+${_prfdir}/tmux/start.sh

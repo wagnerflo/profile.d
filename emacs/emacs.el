@@ -61,6 +61,8 @@
   (global-unset-key (kbd "C-x C-c")))
 
 ;; set some colors
+(setq frame-background-mode 'light)
+
 (defface extra-whitespace-face
   '((t (:background "light goldenrod")))
   "Used for tabs and such.")

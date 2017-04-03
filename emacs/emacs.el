@@ -61,8 +61,6 @@
   (global-unset-key (kbd "C-x C-c")))
 
 ;; set some colors
-(setq frame-background-mode 'light)
-
 (defface extra-whitespace-face
   '((t (:background "light goldenrod")))
   "Used for tabs and such.")
@@ -181,6 +179,17 @@
 
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 (setq ediff-split-window-function 'split-window-horizontally)
+
+;; fix some things when running inside tmux
+(defadvice terminal-init-screen
+  (before tmux activate)
+  ""
+  (if (getenv "TMUX")
+    (let
+      ((map (copy-keymap xterm-function-map)))
+      (set-keymap-parent map (keymap-parent input-decode-map))
+      (set-keymap-parent input-decode-map map))
+    (setq frame-background-mode 'light)))
 
 ;; system local config
 (let

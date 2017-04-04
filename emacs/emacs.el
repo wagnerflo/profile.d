@@ -191,6 +191,10 @@
       (set-keymap-parent input-decode-map map))
     (setq frame-background-mode 'light)))
 
+;; provide a commandline option to disable the exit keybinding
+(setq command-switch-alist
+  '(("disable-exit" . (lambda (arg) (disable-exit)))))
+
 ;; system local config
 (let
   ((filename

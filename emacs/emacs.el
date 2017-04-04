@@ -183,13 +183,15 @@
 ;; fix some things when running inside tmux
 (defadvice terminal-init-screen
   (before tmux activate)
-  ""
+  "Apply xterm keymap, allowing use of keys passed through tmux."
   (if (getenv "TMUX")
     (let
       ((map (copy-keymap xterm-function-map)))
       (set-keymap-parent map (keymap-parent input-decode-map))
-      (set-keymap-parent input-decode-map map))
-    (setq frame-background-mode 'light)))
+      (set-keymap-parent input-decode-map map))))
+
+(if (getenv "TMUX")
+  (setq frame-background-mode 'light))
 
 ;; provide a commandline option to disable the exit keybinding
 (setq command-switch-alist

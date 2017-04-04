@@ -41,11 +41,22 @@ find_path () {
 }
 
 tattach () {
-    ssh -t ${1} tmux "start \; attach -t ${2}"
+    ssh -t ${1} "tmux source-file -q ~/.tmux.conf 2>/dev/null;
+                 tmux attach -t ${2}"
+}
+
+thas () {
+    ssh ${1} "tmux source-file -q ~/.tmux.conf 2>/dev/null;
+              tmux has-session -t ${2} 2>/dev/null"
+}
+
+tlist () {
+    ssh ${1} "tmux source-file -q ~/.tmux.conf 2>/dev/null;
+              tmux list-sessions"
 }
 
 tkeep () {
-    if ! ssh ${1} tmux "start \; has-session -t ${2}"; then
+    if ! thas ${1} ${2}; then
         return
     fi
 
@@ -60,7 +71,7 @@ tchoose () {
     while true
     do
         _option=$(
-            ssh ${1} tmux "start \; list-sessions" 2>/dev/null | \
+            tlist ${1} 2>/dev/null | \
                 awk -F : -v p="${2}" \
                     '$1 ~ p {
                        out = "'\''" $1 "'\'' ";

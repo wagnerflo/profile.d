@@ -71,6 +71,12 @@ tchoose () {
                            out = out "'\'''\''"
                        print out
                      }')
+
+        if [ -z "${_option}" ]; then
+            dialog --msgbox "No sessions available" 5 40
+            continue
+        fi
+
         _option=$(
             eval dialog --menu \'Choose a tmux session\' 14 40 8 \
                  $(echo ${_option}) 2>&1 >/dev/tty)

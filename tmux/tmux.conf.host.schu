@@ -1,0 +1,5 @@
+new-session -d -s tad/emacs -n emacs 'emacs -disable-exit /ssh:cicero:p/tad'
+set -t tad/emacs status off
+
+new-session -d -s katools/emacs -n emacs 'emacs -disable-exit /ssh:cicero:p/katools'
+set -t katools/emacs status off

@@ -28,7 +28,7 @@
               "floating": "auto_off",
               "name": "emacs",
               "percent": 0.525,
-              "swallows": [ { "class": "^URxvt$", "title": "^emacs$" } ],
+              "swallows": [ { "class": "^URxvt$", "title": "^emacs-protected$" } ],
               "type": "con"
             },
             {
@@ -97,7 +97,7 @@
               "floating": "auto_off",
               "name": "emacs",
               "percent": 0.525,
-              "swallows": [ { "class": "^URxvt$", "title": "^emacs$" } ],
+              "swallows": [ { "class": "^URxvt$", "title": "^emacs-protected$" } ],
               "type": "con"
             },
             {
@@ -166,7 +166,7 @@
               "floating": "auto_off",
               "name": "emacs",
               "percent": 0.525,
-              "swallows": [ { "class": "^URxvt$", "title": "^emacs$" } ],
+              "swallows": [ { "class": "^URxvt$", "title": "^emacs-protected$" } ],
               "type": "con"
             },
             {

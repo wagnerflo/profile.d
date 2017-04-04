@@ -39,3 +39,41 @@ find_path () {
         fi
     done
 }
+
+tmuxkeep () {
+    if ! ssh -t ${1} tmux has-session -t ${2} 2>/dev/null; then
+        return
+    fi
+
+    while ! ssh -t ${1} tmux attach -t ${2}; do
+        true
+    done
+}
+
+tmuxchoose () {
+    local _option
+
+    while true
+    do
+        _option=$(
+            ssh ${1} tmux list-sessions 2>/dev/null | \
+                awk -F : -v p="${2}" \
+                    '$1 ~ p {
+                       out = "'\''" $1 "'\'' ";
+                       $1 = "";
+                       if(index($0,"(attached)") > 0)
+                           out = out "'\''(attached)'\''"
+                       else
+                           out = out "'\'''\''"
+                       print out
+                     }')
+        _option=$(
+            eval dialog --menu \'Choose a tmux session\' 14 40 8 \
+                 $(echo ${_option}) 2>&1 >/dev/tty)
+
+        if [ -z "${_option}" ]; then
+            return
+        fi
+        ssh -t ${1} tmux attach -t "${_option}"
+    done
+}

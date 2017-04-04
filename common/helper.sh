@@ -40,23 +40,27 @@ find_path () {
     done
 }
 
-tmuxkeep () {
-    if ! ssh -t ${1} tmux has-session -t ${2} 2>/dev/null; then
+tattach () {
+    ssh -t ${1} tmux "start \; attach -t ${2}"
+}
+
+tkeep () {
+    if ! ssh ${1} tmux "start \; has-session -t ${2}"; then
         return
     fi
 
-    while ! ssh -t ${1} tmux attach -t ${2}; do
+    while ! tattach ${1} ${2}; do
         true
     done
 }
 
-tmuxchoose () {
+tchoose () {
     local _option
 
     while true
     do
         _option=$(
-            ssh ${1} tmux list-sessions 2>/dev/null | \
+            ssh ${1} tmux "start \; list-sessions" 2>/dev/null | \
                 awk -F : -v p="${2}" \
                     '$1 ~ p {
                        out = "'\''" $1 "'\'' ";
@@ -74,6 +78,6 @@ tmuxchoose () {
         if [ -z "${_option}" ]; then
             return
         fi
-        ssh -t ${1} tmux attach -t "${_option}"
+        tattach ${1} ${_option}
     done
 }

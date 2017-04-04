@@ -17,7 +17,8 @@ bindsym $m+asciicircum exec --no-startup-id ~/.profile.d/i3/dmenu_run
 bindsym Control+Mod1+Delete exec xscreensaver-command -lock
 
 # kill focused window
-bindsym $m+Shift+q kill
+bindsym $m+Shift+q [con_id="__focused__" title="^.*(?<!-protected)$"] kill
+bindsym $m+Shift+Ctrl+q kill
 
 # use these keys for focus, movement, and resize directions
 set $up o

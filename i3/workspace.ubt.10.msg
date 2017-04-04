@@ -1,4 +1,4 @@
-exec urxvt -title logscan -e ssh -t nuc 'tmux attach -t logscan';
+exec urxvt -title logscan -e sh -lc "tmuxkeep nuc logscan";
 exec urxvt;
 exec urxvt;
 exec urxvt;

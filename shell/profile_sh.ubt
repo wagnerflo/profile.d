@@ -1,1 +1,2 @@
 export CVSROOT=:pserver:wagner@s059:/home/cvsroot/repos
+alias tmax="tmux -S/var/run/tmux/edv/default"

@@ -36,6 +36,7 @@ esac
 # functions for helper scripts (no need to play with PATH this way)
 kmm () { ${_prfdir}/shell/kmm "${@}"; }
 ipmi () { ${_prfdir}/shell/ipmi "${@}"; }
+tm () { ${_prfdir}/shell/tm "${@}"; }
 
 # load custom shell config
 try 2f . ${_prfdir}/shell/profile_sh.${PROFILE_ENV}

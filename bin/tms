@@ -5,7 +5,7 @@
 
 . ~/.profile.d/common/common.sh
 
-_hostconf="${_prfdir}/tmux/host.${HOSTNAME}x"
+_hostconf="${_prfdir}/tmux/host.${HOSTNAME}"
 
 main () {
     _cmd=${1}

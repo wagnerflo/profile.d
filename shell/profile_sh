@@ -31,6 +31,10 @@ case "$(uname)" in
         alias ls='ls --color=auto'
         alias grep='grep --color=auto'
         ;;
+    FreeBSD)
+        export CLICOLOR="yes"
+        alias grep='grep --color=auto'
+        ;;
 esac
 
 # functions for helper scripts (no need to play with PATH this way)

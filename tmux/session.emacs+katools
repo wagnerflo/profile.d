@@ -1,0 +1,2 @@
+new-session -d -s emacs+katools -n emacs 'emacs -disable-exit /ssh:cicero:p/katools'
+set -t emacs+katools status off

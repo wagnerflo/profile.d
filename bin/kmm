@@ -1,7 +1,7 @@
 # -*- mode: sh -*-
 
 #####################################################################
-# profile/kmm: helpers for working kvm
+# profile/bin/kmm: helpers for working kvm
 
 main () {
     local _vmdir _brctl _ip

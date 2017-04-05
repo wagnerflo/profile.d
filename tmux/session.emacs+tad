@@ -1,0 +1,2 @@
+new-session -d -s emacs+tad -n emacs 'emacs -disable-exit /ssh:cicero:p/tad'
+set -t emacs+tad status off

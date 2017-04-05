@@ -1,4 +1,4 @@
-exec urxvt -title logscan -e sh -lc 'tm nuc keep logscan';
+exec urxvt -title logscan -e sh -lc 'tms attach logscan';
 exec urxvt;
 exec urxvt;
 exec urxvt;

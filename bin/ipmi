@@ -1,7 +1,7 @@
 # -*- mode: sh -*-
 
 #####################################################################
-# profile/ipmi: helpers for working with ipmi
+# profile/bin/ipmi: helpers for working with ipmi
 
 ipmi () {
     local _hostname

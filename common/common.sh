@@ -35,7 +35,7 @@ fi
 # create symlinks
 if [ ${PROFILE_ENV} != "unknown" ]
 then
-    for _item in git/gitconfig mercurial/hgrc
+    for _item in git/gitconfig mercurial/hgrc tmux/tmux.conf
     do
         _local=${_prfdir}/${_item}.local
         _custom=${_prfdir}/${_item}.${PROFILE_ENV}
@@ -44,27 +44,6 @@ then
             [ -f "${_custom}" ] && \
                 ln -s "$(basename ${_custom})" "${_local}" || \
                 ln -s "$(basename ${_item}.empty)" "${_local}"
-        fi
-    done
-
-    for _item in tmux/tmux.conf
-    do
-        _local=${_prfdir}/${_item}.env.local
-        _custom=${_prfdir}/${_item}.env.${PROFILE_ENV}
-
-        if [ ! -L "${_local}" ]; then
-            [ -f "${_custom}" ] && \
-                ln -s "$(basename ${_custom})" "${_local}" || \
-                    ln -s "$(basename ${_item}.empty)" "${_local}"
-        fi
-
-        _local=${_prfdir}/${_item}.host.local
-        _custom=${_prfdir}/${_item}.host.${HOSTNAME}
-
-        if [ ! -L "${_local}" ]; then
-            [ -f "${_custom}" ] && \
-                ln -s "$(basename ${_custom})" "${_local}" || \
-                    ln -s "$(basename ${_item}.empty)" "${_local}"
         fi
     done
 fi

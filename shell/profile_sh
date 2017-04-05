@@ -37,14 +37,11 @@ case "$(uname)" in
         ;;
 esac
 
-# functions for helper scripts (no need to play with PATH this way)
-kmm () { ${_prfdir}/shell/kmm "${@}"; }
-ipmi () { ${_prfdir}/shell/ipmi "${@}"; }
-tm () { ${_prfdir}/shell/tm "${@}"; }
+# fiddle with PATH to include scripts
+if ! echo ":${PATH}:" | grep -q ":${_prfdir}/bin:"; then
+    export PATH="${PATH}:${_prfdir}/bin"
+fi
 
 # load custom shell config
 try 2f . ${_prfdir}/shell/profile_sh.${PROFILE_ENV}
 try 2f . ${_prfdir}/shell/profile_sh.unversioned
-
-# start tmux
-${_prfdir}/tmux/start.sh

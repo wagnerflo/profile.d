@@ -12,7 +12,7 @@ main () {
     shift
 
     case "${_cmd}" in
-        start|attach|has|list|choose)
+        start|attach|has|list|choose|keepchoosing)
             eval ${_cmd} "${@}"
             ;;
         *)
@@ -94,9 +94,18 @@ choose () {
              --extra-button --extra-label Refresh \
              --menu \'Choose a tmux session\' 14 40 8 \
              $(echo ${_option}) 2>&1 >/dev/tty
-    ) || return $?
+    ) || return $(expr $? + 100)
 
     attach ${_option}
+}
+
+keepchoosing () {
+    while true; do
+        choose "${1}"
+        if [ $? -eq 101 ]; then
+            return
+        fi
+    done
 }
 
 main "${@}"

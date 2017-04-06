@@ -1,4 +1,4 @@
 export CVSROOT=:pserver:wagner@s059:/home/cvsroot/repos
 
 alias tmax="tmux -S/var/run/tmux/edv/default"
-alias root="sudo su root -c /usr/local/bin/zsh"
+alias root="sudo su -l root -c /usr/local/bin/zsh"

@@ -1,0 +1,1 @@
+new-session -d -s ports -n ports 'sudo su -l root -c /usr/local/bin/zsh'

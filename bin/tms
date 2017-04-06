@@ -16,7 +16,7 @@ main () {
             eval ${_cmd} "${@}"
             ;;
         *)
-            echo "usage: ${0} server command [options]"
+            echo "usage: ${0} command [arguments]"
             ;;
     esac
 }

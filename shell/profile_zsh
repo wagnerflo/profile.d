@@ -43,15 +43,25 @@ bindkey '\e^[[D' backward-word
 bindkey "^[[1;3C" forward-word
 bindkey "^[[1;3D" backward-word
 
+#
+update_title () {
+    if [ -n "${TMUX}" ]; then
+        print -Pn "\e]2;${1}\a"
+    else
+        print -Pn "\e]2;%m :: ${1}\a"
+    fi
+}
+
 # promt
 if [ "${TERM}" != "dumb" ]; then
     export PS1='%m %B%40<..<%4~%b '
+
     precmd () {
-        if [ -n "${TMUX}" ]; then
-            print -Pn "\e]2;zsh\a"
-        else
-            print -Pn "\e]2;%m :: zsh\a"
-        fi
+        update_title "zsh"
+    }
+
+    preexec () {
+        update_title "${(z)1}"
     }
 
     chpwd () {

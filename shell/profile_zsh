@@ -47,7 +47,11 @@ bindkey "^[[1;3D" backward-word
 if [ "${TERM}" != "dumb" ]; then
     export PS1='%m %B%40<..<%4~%b '
     precmd () {
-        print -Pn "\e]2;urxvt :: %m\a"
+        if [ -n "${TMUX}" ]; then
+            print -Pn "\e]2;zsh\a"
+        else
+            print -Pn "\e]2;%m :: zsh\a"
+        fi
     }
 
     chpwd () {

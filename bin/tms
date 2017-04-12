@@ -62,11 +62,12 @@ has () {
 }
 
 list () {
-    [ ! -f "${_hostconf}" ] && return
-
     local _name _has _attached
 
-    awk -v p="${1}" '$0 ~ p { print $0 }' "${_hostconf}" | \
+    ( tmux list-sessions 2>/dev/null | \
+          awk -F : -v p="${1}" '$1 ~ p { print $1 }';
+      awk -v p="${1}" '$0 ~ p { print $0 }' \
+          "${_hostconf}" 2>/dev/null ) | sort -u | \
     while read _name; do
         _has=$(has "${_name}" && echo running || echo stopped)
         _attached=$(attached "${_name}" && echo attached || echo detached)

@@ -147,9 +147,13 @@
 (c-set-offset 'inclass '++)
 (c-set-offset 'friend '-)
 
-;; shell script mode
-(add-to-list 'auto-mode-alist '("srcpkgs/[^/]+/template\\'"
-                                 . shell-script-mode))
+;; template files of void linux packages
+(setq vlpt-pattern "srcpkgs/[^/]+/template\\'")
+(add-to-list 'auto-mode-alist `(,vlpt-pattern . sh-mode))
+(add-hook 'sh-mode-hook
+  (lambda ()
+    (if (string-match vlpt-pattern (buffer-file-name))
+      (setq-local indent-tabs-mode t))))
 
 ;; yaml mode
 (require 'yaml-mode)

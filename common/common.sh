@@ -23,7 +23,7 @@ export FQHN="$("${_hostname}" -f)"
 if [ -z ${PROFILE_ENV+x} ]
 then
     case "${FQHN}" in
-        teclador.*)            PROFILE_ENV=teclador;;
+        teclador|teclador.*)   PROFILE_ENV=teclador;;
         naclador.mos32.de)     PROFILE_ENV=naclador;;
         *.ub.uni-tuebingen.de) PROFILE_ENV=ubt;;
         *)                     PROFILE_ENV=unknown;;

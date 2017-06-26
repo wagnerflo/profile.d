@@ -21,3 +21,8 @@ ln -s .profile.d/tmux/tmux.conf ~/.tmux.conf
 
 # on arch linux
 ln -s .profile.d/archlinux/yaourtrc ~/.yaourtrc
+
+# fontconfig
+mkdir -p ~/.config/fontconfig/conf.d
+ln -s ../../../.profile.d/fontconfig/20-prefered.conf ~/.config/fontconfig/conf.d
+ln -s ../../../.profile.d/fontconfig/30-croscore-aliases.conf ~/.config/fontconfig/conf.d

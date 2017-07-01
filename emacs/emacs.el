@@ -152,8 +152,9 @@
 (add-to-list 'auto-mode-alist `(,vlpt-pattern . sh-mode))
 (add-hook 'sh-mode-hook
   (lambda ()
-    (if (string-match vlpt-pattern (buffer-file-name))
-      (setq-local indent-tabs-mode t))))
+    (when (string-match vlpt-pattern (buffer-file-name))
+      (setq sh-basic-offset 8)
+      (setq indent-tabs-mode t))))
 
 ;; yaml mode
 (require 'yaml-mode)

@@ -1,0 +1,3 @@
+[remote "upstream"]
+	url = https://github.com/voidlinux/void-packages.git
+	fetch = +refs/heads/master:refs/remotes/upstream/master

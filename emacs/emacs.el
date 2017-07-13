@@ -42,6 +42,9 @@
 (setq ls-lisp-use-insert-directory-program nil)
 (require 'ls-lisp)
 
+;; use ssh by default
+(setq tramp-default-method "ssh")
+
 ;; make tramp faster on first connection
 (setq tramp-ssh-controlmaster-options "-o ControlMaster=auto")
 

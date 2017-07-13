@@ -37,6 +37,13 @@ case "$(uname)" in
         ;;
 esac
 
+# always run emacs in terminal mode
+alias emacs='emacs -nw'
+
+if [ "$EDITOR" = "emacs" ]; then
+    export EDITOR="$EDITOR -nw"
+fi
+
 # fiddle with PATH to include scripts
 if ! echo ":${PATH}:" | grep -q ":${_prfdir}/bin:"; then
     export PATH="${PATH}:${_prfdir}/bin"

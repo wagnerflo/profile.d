@@ -164,6 +164,12 @@
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
 
+;; xquery mode
+(require 'xquery-mode)
+(add-to-list 'auto-mode-alist '("\\.xql\\'" . xquery-mode))
+
+(setq xquery-mode-indent-style 'native)
+
 ;; use js-mode for .json files
 (add-to-list 'auto-mode-alist '("\\.json\\'" . js-mode))
 

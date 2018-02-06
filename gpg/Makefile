@@ -10,7 +10,7 @@ export-public:
 	done
 
 export-trust:
-	@$(GPG) --export-ownertrust | grep -vE "^#" > trustdb.txt
+	@$(GPG) --export-ownertrust | grep -vE "^#" | sort > trustdb.txt
 
 import-trust:
 	@rm -f ~/.gnupg/trustdb.gpg

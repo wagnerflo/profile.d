@@ -1,6 +1,0 @@
-TMPDIR="/var/tmp"
-AURCOMMENT=0
-AURUPGRADE=1
-BUILD_NOCONFIRM=1   # Only prompt for editing files
-EDITFILES=0
-DETAILUPGRADE=4

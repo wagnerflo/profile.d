@@ -1,7 +1,7 @@
 GPG := gpg2 --with-colons --fixed-list-mode
 
 usage:
-	@echo "usage: $(MAKE) x"
+	@echo "usage: $(MAKE) export-public | export-trust | import-trust"
 
 export-public:
 	@rm -f pub.*

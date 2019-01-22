@@ -1,0 +1,2 @@
+new-session -d -s emacs+opendigi -n emacs 'emacs -nw -disable-exit /ssh:cicero:p/opendigi'
+set -t emacs+opendigi status off

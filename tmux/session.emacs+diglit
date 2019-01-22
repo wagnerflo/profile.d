@@ -1,2 +1,0 @@
-new-session -d -s emacs+diglit -n emacs 'emacs -nw -disable-exit /ssh:cicero:p/diglit'
-set -t emacs+diglit status off

@@ -15,6 +15,7 @@ st = status
 sdiff = diff --staged
 tags = log --no-walk --tags --pretty='%h %d  %s'
 oneline = log --graph --decorate --oneline
+wdiff = diff --color-words
 
 [include]
 path = ~/.profile.d/git/gitconfig.local

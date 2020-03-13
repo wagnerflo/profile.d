@@ -201,6 +201,9 @@ main () {
                     _opts="${_opts} $(pnic "${_file#nic.}" ${_nid})"
                     _nid=$((${_nid} + 1))
                     ;;
+                custom)
+                    _opts="${_opts} $(cat "${_vmdir}/${_file}")"
+                    ;;
             esac
         done
 

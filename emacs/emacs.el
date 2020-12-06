@@ -178,6 +178,10 @@
 ;; use js-mode for .json files
 (add-to-list 'auto-mode-alist '("\\.json\\'" . js-mode))
 
+;; cmake
+(require 'cmake-mode)
+(add-to-list 'auto-mode-alist '("\\'CMakeLists.txt\\'" . cmake-mode))
+
 ;; ess
 (require 'ess-site nil 'noerror)
 (if (featurep 'ess-site)

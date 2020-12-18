@@ -160,12 +160,12 @@
       (setq indent-tabs-mode t))))
 
 ;; yaml mode
-(require 'yaml-mode)
+(autoload 'yaml-mode "yaml-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
 
 ;; rjsx-mode
-(require 'rjsx-mode)
+(autoload 'rjsx-mode "rjsx-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
 (add-to-list 'auto-mode-alist '("\\.es6\\'" . rjsx-mode))
 
@@ -173,7 +173,7 @@
 (add-to-list 'auto-mode-alist '("\\.json\\'" . js-mode))
 
 ;; cmake
-(require 'cmake-mode)
+(autoload 'cmake-mode "cmake-mode" nil t)
 (add-to-list 'auto-mode-alist '("/CMakeLists.txt" . cmake-mode))
 
 ;; ess
@@ -182,7 +182,7 @@
   (ess-toggle-underscore nil))
 
 ;; php-mode
-(autoload 'php-mode "php-mode" "Major mode for editing php code." t)
+(autoload 'php-mode "php-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.php\\'" . php-mode))
 
 ;; python-mode

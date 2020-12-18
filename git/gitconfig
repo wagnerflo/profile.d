@@ -6,6 +6,9 @@ signingkey = 1F23ABC4
 [push]
 default = simple
 
+[init]
+defaultBranch = main
+
 [commit]
 gpgsign = true
 

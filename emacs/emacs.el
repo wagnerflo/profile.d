@@ -1,4 +1,4 @@
-(setq load-path (cons "~/.profile.d/emacs" load-path))
+(add-to-list 'load-path "~/.profile.d/emacs")
 
 ;; temporary files
 (set 'temporary-file-directory "/tmp")

@@ -4,10 +4,17 @@
 # profile/bin/kmm: helpers for working kvm
 
 main () {
-    local _vmdir _brctl _ip
+    local _vmdir _brctl _ip _socat
 
     usage () {
         echo "usage: kmm {start,stop,mon,serial} vm"
+    }
+
+    require () {
+        if [ -z "$2" ]; then
+            printf "Could not find required tool: %s\n" "$1" >/dev/stderr
+            exit 1
+        fi
     }
 
     check_pipe () {
@@ -221,11 +228,11 @@ main () {
             exec 1>&-
 
             # attach to the monitor; this will block until the vm closes
-            socat -u UNIX-CONNECT:"${_vmdir}/.run" FILE:/dev/null
+            "${_socat}" -u UNIX-CONNECT:"${_vmdir}/.run" FILE:/dev/null
 
             # cleanup
             for tap in ${_tapdevs}; do
-                ip tuntap del mode tap dev ${tap} >/dev/null
+                "${_ip}" tuntap del mode tap dev ${tap} >/dev/null
             done
 
             rm -f "${_vmdir}"/.pid
@@ -241,20 +248,20 @@ main () {
     stop () {
         lock_mon || return 1
         echo "system_powerdown" | \
-            socat STDIN UNIX-CONNECT:"${_vmdir}/.mon"
+            "${_socat}" STDIN UNIX-CONNECT:"${_vmdir}/.mon"
         unlock_mon
     }
 
     quit () {
         lock_mon || return 1
-        echo "quit" | socat STDIN UNIX-CONNECT:"${_vmdir}/.mon"
+        echo "quit" | "${_socat}" STDIN UNIX-CONNECT:"${_vmdir}/.mon"
         unlock_mon
     }
 
     connect_mon () {
         lock_mon || return 1
         echo "kmm: connecting to qemu monitor (use ^C to close)"
-        socat -,raw,echo=0,escape=0x03 \
+        "${_socat}" -,raw,echo=0,escape=0x03 \
             UNIX-CONNECT:"${_vmdir}/.mon",flock-ex
         unlock_mon
         echo
@@ -263,7 +270,7 @@ main () {
     connect_serial () {
         lock_serial || return 1
         echo "kmm: connecting to qemu serial console (use ^O to close)"
-        socat -,raw,echo=0,escape=0x0f \
+        "${_socat}" -,raw,echo=0,escape=0x0f \
             UNIX-CONNECT:"${_vmdir}/.serial",flock-ex
         unlock_serial
         echo
@@ -275,8 +282,11 @@ main () {
     fi
 
     _vmdir="${HOME}/.kmm/${2}"
-    _brctl="$(which brctl)"
-    _ip="$(which ip)"
+    _brctl="$(which brctl 2>/dev/null)"
+    _ip="$(which ip 2>/dev/null)"
+    _socat="$(which socat 2>/dev/null)"
+
+    require socat "${_socat}"
 
     if [ ! -d "${_vmdir}" ]; then
         echo "kmm: expected ${_vmdir} to be a directory"

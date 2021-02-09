@@ -204,6 +204,10 @@ main () {
                 custom)
                     _opts="${_opts} $(cat "${_vmdir}/${_file}")"
                     ;;
+                spice.*)
+                    _opts="${_opts} -vga qxl "
+                    _opts="${_opts} -spice port=${_file#spice.},disable-ticketing"
+                    ;;
             esac
         done
 

@@ -172,6 +172,10 @@
 ;; use js-mode for .json files
 (add-to-list 'auto-mode-alist '("\\.json\\'" . js-mode))
 
+;; svelte
+(autoload 'svelte-mode "svelte-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-mode))
+
 ;; cmake
 (autoload 'cmake-mode "cmake-mode" nil t)
 (add-to-list 'auto-mode-alist '("/CMakeLists.txt" . cmake-mode))

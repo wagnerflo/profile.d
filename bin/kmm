@@ -158,6 +158,10 @@ main () {
                     virtio) _device="virtio-net-pci${_device}";;
                     user) _netdev="user${_netdev}";;
                     redir=*) _netdev="${_netdev},hostfwd=tcp:${part#redir=}";;
+                    bootfile=*)
+                        part=$(printf %b "${part#bootfile=}")
+                        _netdev="${_netdev},bootfile=${part}"
+                        ;;
                 esac
             done
 

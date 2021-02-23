@@ -159,6 +159,15 @@
       (setq sh-basic-offset 8)
       (setq indent-tabs-mode t))))
 
+;; markdown mode
+(autoload 'markdown-mode "markdown-mode" nil t)
+(autoload 'gfm-mode "markdown-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.markdown\\'" . gfm-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . gfm-mode))
+(setq markdown-command "cmark")
+(setq markdown-live-preview-window-function
+  (lambda (file) ""))
+
 ;; yaml mode
 (autoload 'yaml-mode "yaml-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
@@ -168,6 +177,7 @@
 (autoload 'rjsx-mode "rjsx-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
 (add-to-list 'auto-mode-alist '("\\.es6\\'" . rjsx-mode))
+(setq js-switch-indent-offset 2)
 
 ;; use js-mode for .json files
 (add-to-list 'auto-mode-alist '("\\.json\\'" . js-mode))

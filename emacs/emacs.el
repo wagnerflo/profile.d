@@ -196,8 +196,11 @@
   (ess-toggle-underscore nil))
 
 ;; php-mode
-(autoload 'php-mode "php-mode" nil t)
-(add-to-list 'auto-mode-alist '("\\.php\\'" . php-mode))
+(when (file-directory-p "~/.profile.d/emacs/php-mode")
+  (load "~/.profile.d/emacs/php-mode/php-mode-autoloads.el"))
+
+;; (autoload 'php-mode "php-mode" nil t)
+;; (add-to-list 'auto-mode-alist '("\\.php\\'" . php-mode))
 
 ;; python-mode
 (add-hook 'python-mode-hook

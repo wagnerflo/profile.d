@@ -174,9 +174,17 @@
 ;; use js-mode for .json files
 (add-to-list 'auto-mode-alist '("\\.json\\'" . js-mode))
 
-;; svelte
-(autoload 'svelte-mode "svelte-mode" nil t)
-(add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-mode))
+;; web-mode
+(autoload 'web-mode "web-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.svelte\\'" . web-mode))
+
+(add-hook 'web-mode-hook
+  (lambda ()
+    (setq web-mode-markup-indent-offset 2)
+    (setq web-mode-css-indent-offset 2)
+    (setq web-mode-code-indent-offset 2)
+    (setq web-mode-style-padding 2)
+    (setq web-mode-script-padding 2)))
 
 ;; cmake
 (autoload 'cmake-mode "cmake-mode" nil t)

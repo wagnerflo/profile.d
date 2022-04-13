@@ -1,4 +1,4 @@
-;;; php-mode.el --- Major mode for editing PHP code
+;;; php-mode.el --- Major mode for editing PHP code  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  Friends of Emacs-PHP development
 ;; Copyright (C) 1999, 2000, 2001, 2003, 2004 Turadg Aleahmad
@@ -56,9 +56,9 @@
 (require 'php)
 (require 'php-face)
 (require 'cc-mode)
-(require 'cc-langs)
 
 (eval-when-compile
+  (require 'cc-langs)
   (require 'cc-fonts))
 
 ;; Boilerplate from other `cc-mode' derived modes. See
@@ -69,44 +69,21 @@
 
 (require 'font-lock)
 (require 'custom)
-(require 'etags)
 (require 'speedbar)
 (require 'imenu)
-(require 'nadvice nil t)
-
-(require 'cl-lib)
+(require 'package)
+(require 'nadvice)
 (require 'mode-local)
 (require 'php-project)
 
 (eval-when-compile
+  (require 'rx)
+  (require 'cl-lib)
   (require 'regexp-opt)
   (defvar add-log-current-defun-header-regexp)
   (defvar add-log-current-defun-function)
   (defvar c-vsemi-status-unknown-p)
   (defvar syntax-propertize-via-font-lock))
-
-;; Work around emacs bug#18845, cc-mode expects cl to be loaded
-;; while php-mode only uses cl-lib (without compatibility aliases)
-(eval-and-compile
-  (when (and (= emacs-major-version 24) (>= emacs-minor-version 4))
-    (require 'cl)))
-
-;; Work around https://github.com/emacs-php/php-mode/issues/310.
-;;
-;; In emacs 24.4 and 24.5, lines after functions with a return type
-;; are incorrectly analyzed as member-init-cont.
-;;
-;; Before emacs 24.4, c member initializers are not supported this
-;; way. Starting from emacs 25.1, cc-mode only detects member
-;; initializers when the major mode is c++-mode.
-(eval-and-compile
-  (if (and (= emacs-major-version 24) (or (= emacs-minor-version 4)
-                                          (= emacs-minor-version 5)))
-      (defun c-back-over-member-initializers ()
-        ;; Override of cc-engine.el, cc-mode in emacs 24.4 and 24.5 are too
-        ;; optimistic in recognizing c member initializers. Since we don't
-        ;; need it in php-mode, just return nil.
-        nil)))
 
 (autoload 'php-mode-debug "php-mode-debug"
   "Display informations useful for debugging PHP Mode." t)
@@ -191,21 +168,10 @@ enabled."
   :tag "PHP Mode Do Not Use Semantic Imenu"
   :type 'boolean)
 
-(defcustom php-completion-file ""
-  "Path to the file which contains the function names known to PHP."
-  :type 'string)
-
-(defcustom php-manual-path ""
-  "Path to the directory which contains the PHP manual."
-  :type 'string)
-
 ;;;###autoload
-(if (version< emacs-version "24.4")
-    (dolist (i '("php" "php5" "php7"))
-      (add-to-list 'interpreter-mode-alist (cons i 'php-mode)))
-  (add-to-list 'interpreter-mode-alist
-               ;; Match php, php-3, php5, php7, php5.5, php-7.0.1, etc.
-               (cons "php\\(?:-?[3457]\\(?:\\.[0-9]+\\)*\\)?" 'php-mode)))
+(add-to-list 'interpreter-mode-alist
+             ;; Match php, php-3, php5, php7, php5.5, php-7.0.1, etc.
+             (cons "php\\(?:-?[34578]\\(?:\\.[0-9]+\\)*\\)?" 'php-mode))
 
 (defcustom php-mode-hook nil
   "List of functions to be executed on entry to `php-mode'."
@@ -244,7 +210,7 @@ enabled."
   :type 'hook)
 
 (defcustom php-mode-force-pear nil
-  "Normally PEAR coding rules are enforced only when the filename contains \"PEAR.\"
+  "Normally PEAR coding rules are enforced only when the filename contains \"PEAR\".
 Turning this on will force PEAR rules on all PHP files."
   :group 'php-mode
   :tag "PHP Mode Force Pear"
@@ -260,7 +226,7 @@ have any tags inside a PHP string, it will be fooled."
   :type '(choice (const :tag "Warn" t) (const "Don't warn" nil)))
 
 (defcustom php-mode-coding-style 'pear
-  "Select default coding style to use with php-mode.
+  "Select default coding style to use with `php-mode'.
 This variable can take one of the following symbol values:
 
 `Default' - use a reasonable default style for PHP.
@@ -282,7 +248,7 @@ This variable can take one of the following symbol values:
 ;; Since this function has a bad influence on the environment of many users,
 ;; temporarily disable it
 (defcustom php-mode-enable-project-coding-style nil
-  "When set to true override php-mode-coding-style by php-project-coding-style.
+  "When set to true override `php-mode-coding-style' by `php-project-coding-style'.
 
 If you want to suppress styles from being overwritten by directory / file
 local variables, set NIL."
@@ -417,8 +383,7 @@ In that case set to `NIL'."
   php "\\s-*\\(<\\?(=\\|\\sw+)\\)")
 
 (c-lang-defconst c-identifier-ops
-  php '(
-        (left-assoc "\\" "::" "->")
+  php '((left-assoc "\\" "::" "->")
         (prefix "\\" "::")))
 
 (c-lang-defconst c-operators
@@ -475,7 +440,7 @@ In that case set to `NIL'."
 
 (c-lang-defconst c-primitive-type-kwds
   php '("int" "integer" "bool" "boolean" "float" "double" "real"
-        "string" "object" "void" "mixed"))
+        "string" "object" "void" "mixed" "never"))
 
 (c-lang-defconst c-class-decl-kwds
   "Keywords introducing declarations where the following block (if any)
@@ -486,14 +451,14 @@ contains another declaration level that should be considered a class."
   "Keywords introducing declarations where the following block (if
 any) is a brace list.
 
-PHP does not have an \"enum\"-like keyword."
+PHP does not have an C-like \"enum\" keyword."
   php nil)
 
 (c-lang-defconst c-typeless-decl-kwds
   php (append (c-lang-const c-class-decl-kwds) '("function")))
 
 (c-lang-defconst c-modifier-kwds
-  php '("abstract" "const" "final" "static" "case"))
+  php '("abstract" "const" "final" "static" "case" "readonly"))
 
 (c-lang-defconst c-protection-kwds
   "Access protection label keywords in classes."
@@ -531,8 +496,7 @@ PHP does not have an \"enum\"-like keyword."
 (c-lang-defconst c-other-kwds
   "Keywords not accounted for by any other `*-kwds' language constant."
   php
-  '(
-    "__halt_compiler"
+  '("__halt_compiler"
     "and"
     "array"
     "as"
@@ -627,7 +591,8 @@ might be to handle switch and goto labels differently."
                (group "{"))))
 
 (defun php-c-lineup-arglist (langelem)
-  "Line up the current argument line under the first argument using `c-lineup-arglist' LANGELEM."
+  "Line up the current argument line under the first argument using
+`c-lineup-arglist' LANGELEM."
   (let (in-return-typed-closure)
     (when (and (consp langelem)
                (eq 'arglist-cont-nonempty (car langelem)))
@@ -642,14 +607,14 @@ might be to handle switch and goto labels differently."
 
 (defun php-lineup-cascaded-calls (langelem)
   "Line up chained methods using `c-lineup-cascaded-calls',
-but only if the setting is enabled"
+but only if the setting is enabled."
   (if php-mode-lineup-cascaded-calls
       (c-lineup-cascaded-calls langelem)
     (save-excursion
       (beginning-of-line)
       (if (looking-at-p "\\s-*->") '+ nil))))
 
-(defun php-c-looking-at-or-maybe-in-bracelist (&optional containing-sexp lim)
+(defun php-c-looking-at-or-maybe-in-bracelist (&optional _containing-sexp lim)
   "Replace `c-looking-at-or-maybe-in-bracelist'.
 
 CONTAINING-SEXP is the position of the brace/paren/bracket enclosing
@@ -705,7 +670,7 @@ a backward search limit."
    (tab-width . 4)))
 
 (defun php-enable-pear-coding-style ()
-  "Set up php-mode to use the coding styles preferred for PEAR code and modules."
+  "Set up `php-mode' to use the coding styles preferred for PEAR code and modules."
   (interactive)
   (php-set-style "pear"))
 
@@ -720,7 +685,7 @@ a backward search limit."
    (php-style-delete-trailing-whitespace . t)))
 
 (defun php-enable-drupal-coding-style ()
-  "Make php-mode use coding styles that are preferable for working with Drupal."
+  "Make `php-mode' use coding styles that are preferable for working with Drupal."
   (interactive)
   (php-set-style "drupal"))
 
@@ -734,7 +699,8 @@ a backward search limit."
     (fill-column . 78)))
 
 (defun php-enable-wordpress-coding-style ()
-  "Make php-mode use coding styles that are preferable for working with Wordpress."
+  "Make `php-mode' use coding styles that are preferable for working with
+Wordpress."
   (interactive)
   (php-set-style "wordpress"))
 
@@ -747,7 +713,7 @@ a backward search limit."
     (fill-column . 78)))
 
 (defun php-enable-symfony2-coding-style ()
-  "Make php-mode use coding styles that are preferable for working with Symfony2."
+  "Make `php-mode' use coding styles that are preferable for working with Symfony2."
   (interactive)
   (php-set-style "symfony2"))
 
@@ -762,7 +728,7 @@ a backward search limit."
     (php-style-delete-trailing-whitespace . t)))
 
 (defun php-enable-psr2-coding-style ()
-  "Make php-mode comply to the PSR-2 coding style."
+  "Make `php-mode' comply to the PSR-2 coding style."
   (interactive)
   (php-set-style "psr2"))
 
@@ -914,19 +880,18 @@ This is was done due to the problem reported here:
     (if pos
         (goto-char pos)
       (setq pos (point)))
-    (unless (php-in-string-or-comment-p)
-      (or
-       ;; Detect PHP8 attribute: <<Attribute()>>
-       (when (and (< 2 pos) (< 2 (- pos (c-point 'bol))))
-         (backward-char 2)
-         (looking-at-p ">>\\s-*\\(?:<<\\|$\\)"))
-       ;; Detect HTML/XML tag and PHP tag (<?php, <?=, ?>)
-       (when php-mode-template-compatibility
-         (beginning-of-line)
-         (looking-at-p
-          (eval-when-compile
-            (rx (or (: bol (0+ space) "<" (in "a-z\\?"))
-                    (: (0+ not-newline) (in "a-z\\?") ">" (0+ space) eol))))))))))
+    (cond
+     ;; Detect PHP8 attribute: #[Attribute()]
+     ((and (< 1 pos) (< 1 (- pos (c-point 'bol))))
+      (backward-char 1)
+      (looking-at-p (eval-when-compile (rx "]" (* (syntax whitespace)) (or "#[" line-end)))))
+     ;; Detect HTML/XML tag and PHP tag (<?php, <?=, ?>)
+     (php-mode-template-compatibility
+      (beginning-of-line)
+      (looking-at-p
+       (eval-when-compile
+         (rx (or (: bol (0+ space) "<" (in "?a-z"))
+                 (: (0+ not-newline) (in "?a-z") ">" (0+ space) eol)))))))))
 
 (defun php-c-vsemi-status-unknown-p ()
   "Always return NIL.  See `c-vsemi-status-unknown-p'."
@@ -970,39 +935,58 @@ this ^ lineup"
 
 (eval-and-compile
   (defconst php-heredoc-start-re
-    "<<<[ \t]*\\(?:\\_<.+?\\_>\\|'\\_<.+?\\_>'\\|\"\\_<.+?\\_>\"\\)$"
+    (rx "<<<"
+        (* (syntax whitespace))
+        (or (group (+ (or (syntax word) (syntax symbol))))
+            (: "\"" (group (+ (or (syntax word) (syntax symbol)))) "\"")
+            (: "'" (group (+ (or (syntax word) (syntax symbol)))) "'"))
+        line-end)
     "Regular expression for the start of a PHP heredoc."))
 
 (defun php-heredoc-end-re (heredoc-start)
-  "Build a regular expression for the end of a heredoc started by the string HEREDOC-START."
+  "Build a regular expression for the end of a heredoc started by the string
+HEREDOC-START."
   ;; Extract just the identifier without <<< and quotes.
   (string-match "\\_<.+?\\_>" heredoc-start)
   (concat "^\\s-*\\(" (match-string 0 heredoc-start) "\\)\\W"))
 
-(defun php-syntax-propertize-function (start end)
-  "Apply propertize rules from START to END."
-  (goto-char start)
-  (while (and (< (point) end)
-              (re-search-forward php-heredoc-start-re end t))
-    (php-heredoc-syntax))
-  (goto-char start)
-  (while (re-search-forward "['\"]" end t)
-    (when (php-in-comment-p)
-      (c-put-char-property (match-beginning 0)
-                           'syntax-table (string-to-syntax "_")))))
+(eval-and-compile
+  (defconst php-syntax-propertize-rules
+    `((php-heredoc-start-re
+       (0 (ignore (php--syntax-propertize-heredoc
+                   (match-beginning 0)
+                   (or (match-string 1) (match-string 2) (match-string 3))
+                   (null (match-string 3))))))
+      (,(rx "#[")
+       (0 (ignore (php--syntax-propertize-attributes (match-beginning 0)))))
+      (,(rx (or "'" "\"" ))
+       (0 (ignore (php--syntax-propertize-quotes-in-comment (match-beginning 0)))))))
 
-(defun php-heredoc-syntax ()
-  "Mark the boundaries of searched heredoc."
-  (goto-char (match-beginning 0))
-  (c-put-char-property (point) 'syntax-table (string-to-syntax "|"))
-  (if (re-search-forward (php-heredoc-end-re (match-string 0)) nil t)
-      (goto-char (match-end 1))
-    ;; Did not find the delimiter so go to the end of the buffer.
-    (goto-char (point-max)))
-  (c-put-char-property (1- (point)) 'syntax-table (string-to-syntax "|")))
+  (defmacro php-build-propertize-function ()
+    `(byte-compile (syntax-propertize-rules ,@php-syntax-propertize-rules)))
+
+  (defalias 'php-syntax-propertize-function (php-build-propertize-function)))
+
+(defun php--syntax-propertize-heredoc (start id _is-heredoc)
+  "Apply propertize Heredoc and Nowdoc from START, with ID and IS-HEREDOC."
+  (let ((terminator (rx-to-string `(: line-start (* (syntax whitespace)) ,id word-boundary))))
+    (put-text-property start (1+ start) 'syntax-table (string-to-syntax "|"))
+    (re-search-forward terminator nil t)
+    (when (match-string 0)
+      (put-text-property (1- (point)) (point) 'syntax-table (string-to-syntax "|")))))
+
+(defun php--syntax-propertize-quotes-in-comment (pos)
+  "Apply propertize quotes (' and \") from POS."
+  (when (php-in-comment-p)
+    (put-text-property pos (1+ pos) 'syntax-table (string-to-syntax "_"))))
+
+(defun php--syntax-propertize-attributes (start)
+  "Apply propertize PHP8 #[Attributes] (without # comment) from START."
+  (unless (php-in-string-p)
+    (put-text-property start (1+ start) 'syntax-table (string-to-syntax "."))))
 
 (defvar-local php-mode--propertize-extend-region-current nil
-  "Prevent undesirable recursion in PHP-SYNTAX-PROPERTIZE-EXTEND-REGION")
+  "Prevent undesirable recursion in PHP-SYNTAX-PROPERTIZE-EXTEND-REGION.")
 
 (defun php-syntax-propertize-extend-region (start end)
   "Extend the propertize region if START or END falls inside a PHP heredoc."
@@ -1013,8 +997,7 @@ this ^ lineup"
       ;; turn call this to be called again.
       (push pair php-mode--propertize-extend-region-current)
       (unwind-protect
-          (let ((new-start)
-                (new-end))
+          (let (new-start new-end)
             (goto-char start)
             (when (re-search-backward php-heredoc-start-re nil t)
               (let ((maybe (point)))
@@ -1033,7 +1016,7 @@ this ^ lineup"
         (setq php-mode--propertize-extend-region-current
               (delete pair php-mode--propertize-extend-region-current))))))
 
-(easy-menu-define php-mode-menu php-mode-map "PHP Mode Commands"
+(easy-menu-define php-mode-menu php-mode-map "PHP Mode Commands."
   (cons "PHP" (c-lang-const c-mode-menu php)))
 
 (defun php-mode-get-style-alist ()
@@ -1095,11 +1078,10 @@ After setting the stylevars run hooks according to STYLENAME
         ((equal stylename "symfony2")  (run-hooks 'php-mode-symfony2-hook))
         ((equal stylename "psr2")      (run-hooks 'php-mode-psr2-hook))))
 
-(defun php-mode--disable-delay-set-style (&rest args)
-  "Disable php-mode-set-style-delay on after hook.  `ARGS' be ignore."
+(defun php-mode--disable-delay-set-style (&rest _args)
+  "Disable `php-mode-set-style-delay' on after hook.  ARGS be ignore."
   (setq php-mode--delayed-set-style nil)
-  (when (fboundp 'advice-remove)
-    (advice-remove #'php-mode--disable-delay-set-style #'c-set-style)))
+  (advice-remove #'php-mode--disable-delay-set-style #'c-set-style))
 
 (defun php-mode-set-style-delay ()
   "Set the current `php-mode' buffer to use the style by custom or local variables."
@@ -1151,7 +1133,7 @@ After setting the stylevars run hooks according to STYLENAME
   (setq-local comment-start "// ")
   (setq-local comment-start-skip
               (eval-when-compile
-                (rx (group (or (: "#")
+                (rx (group (or (: "#" (not (any "[")))
                                (: "/" (+ "/"))
                                (: "/*")))
                     (* (syntax whitespace)))))
@@ -1170,7 +1152,9 @@ After setting the stylevars run hooks according to STYLENAME
   (add-hook 'syntax-propertize-extend-region-functions
             #'php-syntax-propertize-extend-region t t)
 
-  (setq imenu-generic-expression php-imenu-generic-expression)
+  (setq imenu-generic-expression (if (symbolp php-imenu-generic-expression)
+                                     (symbol-value php-imenu-generic-expression)
+                                   php-imenu-generic-expression))
 
   ;; PHP vars are case-sensitive
   (setq case-fold-search t)
@@ -1185,8 +1169,7 @@ After setting the stylevars run hooks according to STYLENAME
       (progn
         (add-hook 'hack-local-variables-hook #'php-mode-set-style-delay t t)
         (setq php-mode--delayed-set-style t)
-        (when (fboundp 'advice-add)
-          (advice-add #'c-set-style :after #'php-mode--disable-delay-set-style '(local))))
+        (advice-add #'c-set-style :after #'php-mode--disable-delay-set-style '(local)))
     (let ((php-mode-enable-backup-style-variables nil))
       (php-set-style (symbol-name php-mode-coding-style))))
 
@@ -1218,7 +1201,8 @@ After setting the stylevars run hooks according to STYLENAME
 
   (when (fboundp 'c-looking-at-or-maybe-in-bracelist)
     (advice-add #'c-looking-at-or-maybe-in-bracelist
-                :override 'php-c-looking-at-or-maybe-in-bracelist))
+                :override 'php-c-looking-at-or-maybe-in-bracelist '(local)))
+  (advice-add #'fixup-whitespace :after #'php-mode--fixup-whitespace-after '(local))
 
   (when (>= emacs-major-version 25)
     (with-silent-modifications
@@ -1237,10 +1221,7 @@ After setting the stylevars run hooks according to STYLENAME
     #'semantic-create-imenu-index)
   "Imenu index function for PHP.")
 
-
-;; Define function name completion function
-(defvar php-completion-table nil
-  "Obarray of tag names defined in current tags table and functions known to PHP.")
+(autoload 'php-local-manual-complete-function "php-local-manual")
 
 (defun php-complete-function ()
   "Perform function completion on the text around point.
@@ -1249,102 +1230,7 @@ and the standard php functions.
 The string to complete is chosen in the same way as the default
 for \\[find-tag] (which see)."
   (interactive)
-  (let ((pattern (php-get-pattern))
-        beg
-        completion
-        (php-functions (php-completion-table)))
-    (if (not pattern) (message "Nothing to complete")
-        (if (not (search-backward pattern nil t))
-            (message "Can't complete here")
-          (setq beg (point))
-          (forward-char (length pattern))
-          (setq completion (try-completion pattern php-functions nil))
-          (cond ((eq completion t))
-                ((null completion)
-                 (message "Can't find completion for \"%s\"" pattern)
-                 (ding))
-                ((not (string= pattern completion))
-                 (delete-region beg (point))
-                 (insert completion))
-                (t
-                 (let ((selected (completing-read
-                                  "Select completion: "
-                                  (all-completions pattern php-functions)
-                                  nil t pattern)))
-                   (delete-region beg (point))
-                   (insert selected))))))))
-
-(defun php-completion-table ()
-  "Build variable `php-completion-table' on demand.
-The table includes the PHP functions and the tags from the
-current `tags-file-name'."
-  (or (and tags-file-name
-           (save-excursion (tags-verify-table tags-file-name))
-           php-completion-table)
-      (let ((tags-table
-             (when tags-file-name
-               (with-current-buffer (get-file-buffer tags-file-name)
-                 (etags-tags-completion-table))))
-            (php-table
-             (cond ((and (not (string= "" php-completion-file))
-                         (file-readable-p php-completion-file))
-                    (php-build-table-from-file php-completion-file))
-                   ((and (not (string= "" php-manual-path))
-                         (file-directory-p php-manual-path))
-                    (php-build-table-from-path php-manual-path))
-                   (t nil))))
-        (unless (or php-table tags-table)
-          (error
-           (concat "No TAGS file active nor are "
-                   "`php-completion-file' or `php-manual-path' set")))
-        (when tags-table
-          ;; Combine the tables.
-          (if (obarrayp tags-table)
-              (mapatoms (lambda (sym) (intern (symbol-name sym) php-table))
-                        tags-table)
-            (setq php-table (append tags-table php-table))))
-        (setq php-completion-table php-table))))
-
-(defun php-build-table-from-file (filename)
-  (let ((table (make-vector 1022 0))
-        (buf (find-file-noselect filename)))
-    (with-current-buffer buf
-      (goto-char (point-min))
-      (while (re-search-forward
-              "^\\([-a-zA-Z0-9_.]+\\)\n"
-              nil t)
-        (intern (buffer-substring (match-beginning 1) (match-end 1))
-                table)))
-    (kill-buffer buf)
-    table))
-
-(defun php-build-table-from-path (path)
-  "Return list of PHP function name from `PATH' directory."
-  (cl-loop for file in (directory-files path nil "^function\\..+\\.html$")
-           if (string-match "\\.\\([-a-zA-Z_0-9]+\\)\\.html$" file)
-           collect (replace-regexp-in-string
-                    "-" "_" (substring file (match-beginning 1) (match-end 1)) t)))
-
-;; Find the pattern we want to complete
-;; find-tag-default from GNU Emacs etags.el
-(defun php-get-pattern ()
-  (save-excursion
-    (while (looking-at "\\sw\\|\\s_")
-      (forward-char 1))
-    (if (or (re-search-backward "\\sw\\|\\s_"
-                                (save-excursion (beginning-of-line) (point))
-                                t)
-            (re-search-forward "\\(\\sw\\|\\s_\\)+"
-                               (save-excursion (end-of-line) (point))
-                               t))
-        (progn (goto-char (match-end 0))
-               (buffer-substring-no-properties
-                (point)
-                (progn (forward-sexp -1)
-                       (while (looking-at "\\s'")
-                         (forward-char 1))
-                       (point))))
-      nil)))
+  (php-local-manual-complete-function))
 
 (defun php-show-arglist ()
   "Show function arguments at cursor position."
@@ -1363,130 +1249,6 @@ current `tags-file-name'."
     (if arglist
         (message "Arglist for %s: %s" tagname arglist)
       (message "Unknown function: %s" tagname))))
-
-(defcustom php-search-documentation-browser-function nil
-  "Function to display PHP documentation in a WWW browser.
-
-If non-nil, this shadows the value of `browse-url-browser-function' when
-calling `php-search-documentation' or `php-search-local-documentation'."
-  :group 'php
-  :tag "PHP Search Documentation Browser Function"
-  :type '(choice (const :tag "default" nil) function)
-  :link '(variable-link browse-url-browser-function))
-
-(defun php-browse-documentation-url (url)
-  "Browse a documentation URL using the configured browser function.
-
-See `php-search-documentation-browser-function'."
-  (let ((browse-url-browser-function
-         (or php-search-documentation-browser-function
-             browse-url-browser-function)))
-    (browse-url url)))
-
-(defvar php-search-local-documentation-types
-  (list "function" "control-structures" "class" "book")
-  ;; "intro" and "ref" also look interesting, but for all practical purposes
-  ;; their terms are sub-sets of the "book" terms (with the few exceptions
-  ;; being very unlikely search terms).
-  "The set (and priority sequence) of documentation file prefixes
-under which to search for files in the local documentation directory.")
-
-(defvar php-search-local-documentation-words-cache nil)
-
-(defun php--search-documentation-read-arg ()
-  "Obtain interactive argument for searching documentation."
-  ;; Cache the list of documentation words available for completion,
-  ;; based on the defined types-of-interest.
-  (let ((types-list php-search-local-documentation-types)
-        (words-cache php-search-local-documentation-words-cache)
-        (local-manual (and (stringp php-manual-path)
-                           (not (string= php-manual-path "")))))
-    (when (and local-manual
-               (not (assq types-list words-cache)))
-      ;; Generate the cache on the first run, or if the types changed.
-      ;; We read the filenames matching our types list in the local
-      ;; documentation directory, and extract the 'middle' component
-      ;; of each. e.g. "function.array-map.html" => "array_map".
-      (let* ((types-opt (regexp-opt types-list))
-             (pattern (concat "\\`" types-opt "\\.\\(.+\\)\\.html\\'"))
-             (collection
-              (mapcar (lambda (filename) (subst-char-in-string
-                                          ?- ?_ (replace-regexp-in-string
-                                                 pattern "\\1" filename)))
-                      (directory-files php-manual-path nil pattern))))
-        ;; Replace the entire cache. If the types changed, we don't need
-        ;; to retain the collection for the previous value.
-        (setq words-cache (list (cons types-list collection)))
-        (setq php-search-local-documentation-words-cache words-cache)))
-    ;; By default we search for (current-word) immediately, without prompting.
-    ;; With a prefix argument, or if there is no (current-word), we perform a
-    ;; completing read for a word from the cached collection.
-    (let* ((default (current-word))
-           (prompt (if default
-                       (format "Search PHP docs (%s): " default)
-                     "Search PHP docs: "))
-           (collection (and local-manual
-                            (cdr (assq types-list words-cache))))
-           (word (if (or current-prefix-arg (not default))
-                     (completing-read prompt collection nil nil nil nil default)
-                   default)))
-      ;; Return interactive argument list.
-      (list word))))
-
-(defun php-search-local-documentation (word)
-  "Search the local PHP documentation (i.e. in `php-manual-path') for
-the word at point.  The function returns t if the requested documentation
-exists, and nil otherwise.
-
-With a prefix argument, prompt (with completion) for a word to search for."
-  (interactive (php--search-documentation-read-arg))
-  (let ((file (catch 'found
-                (cl-loop for type in php-search-local-documentation-types do
-                         (let* ((doc-html (format "%s.%s.html"
-                                                  type
-                                                  (replace-regexp-in-string
-                                                   "_" "-" (downcase word))))
-                                (file (expand-file-name doc-html  php-manual-path)))
-                           (when (file-exists-p file)
-                             (throw 'found file)))))))
-    (when file
-      (let ((file-url (if (string-prefix-p "file://" file)
-                          file
-                        (concat "file://" file))))
-        (php-browse-documentation-url file-url))
-      t)))
-
-(defsubst php-search-web-documentation (word)
-  "Return URL to search PHP manual search by `WORD'."
-  (php-browse-documentation-url (concat (or php-search-url php-site-url) word)))
-
-;; Define function documentation function
-(defun php-search-documentation (word)
-  "Search PHP documentation for the `WORD' at point.
-
-If `php-manual-path' has a non-empty string value then the command
-will first try searching the local documentation.  If the requested
-documentation does not exist it will fallback to searching the PHP
-website.
-
-With a prefix argument, prompt for a documentation word to search
-for.  If the local documentation is available, it is used to build
-a completion list."
-  (interactive (php--search-documentation-read-arg))
-  (if (and (stringp php-manual-path)
-           (not (string= php-manual-path "")))
-      (or (php-search-local-documentation word)
-          (php-search-web-documentation word))
-    (php-search-web-documentation word)))
-
-;; Define function for browsing manual
-(defun php-browse-manual ()
-  "Bring up manual for PHP."
-  (interactive)
-  (browse-url (if (stringp php-manual-url)
-                  php-manual-url
-                (format "%smanual/%s/" php-site-url php-manual-url))))
-
 
 ;; Font Lock
 (defconst php-phpdoc-type-keywords
@@ -1680,7 +1442,9 @@ a completion list."
 
      ;; Logical operators (and, or, &&, ...)
      ;; Not operator (!) is defined in "before cc-mode" section above.
-     ("\\(&&\\|||\\)" 1 'php-logical-op)))
+     ("\\(&&\\|||\\)" 1 'php-logical-op)
+     ;; string interpolation ("$var, ${var}, {$var}")
+     (php-mode--string-interpolated-variable-font-lock-find 0 nil)))
   "Detailed highlighting for PHP Mode.")
 
 (defvar php-font-lock-keywords php-font-lock-keywords-3
@@ -1712,37 +1476,24 @@ The output will appear in the buffer *PHP*."
 (defconst php-string-interpolated-variable-regexp
   "{\\$[^}\n\\\\]*\\(?:\\\\.[^}\n\\\\]*\\)*}\\|\\${\\sw+}\\|\\$\\sw+")
 
-(defun php-string-intepolated-variable-font-lock-find (limit)
-  (while (re-search-forward php-string-interpolated-variable-regexp limit t)
-    (let ((quoted-stuff (nth 3 (syntax-ppss))))
-      (when (and quoted-stuff (member quoted-stuff '(?\" ?`)))
-        (put-text-property (match-beginning 0) (match-end 0)
-                           'face 'php-variable-name))))
+(defun php-mode--string-interpolated-variable-font-lock-find (limit)
+  "Apply text-property to LIMIT for string interpolation by font-lock."
+  (let (quoted-stuff)
+    (while (re-search-forward php-string-interpolated-variable-regexp limit t)
+      (setq quoted-stuff (php-in-string-p))
+      (when (or (eq ?\" quoted-stuff) (eq ?` quoted-stuff))
+        (put-text-property (match-beginning 0) (match-end 0) 'face 'php-variable-name))))
   nil)
-
-(eval-after-load 'php-mode
-  '(progn
-     (font-lock-add-keywords
-      'php-mode
-      `((php-string-intepolated-variable-font-lock-find))
-      'append)))
-
 
-
 ;;; Correct the behavior of `delete-indentation' by modifying the
 ;;; logic of `fixup-whitespace'.
-(defadvice fixup-whitespace (after php-mode-fixup-whitespace)
+(defun php-mode--fixup-whitespace-after ()
   "Remove whitespace before certain characters in PHP Mode."
-  (let* ((no-behind-space ";\\|,\\|->\\|::")
-         (no-front-space "->\\|::"))
-    (when (and (eq major-mode 'php-mode)
-               (or (looking-at-p (concat " \\(" no-behind-space "\\)"))
-                   (save-excursion
-                     (forward-char -2)
-                     (looking-at-p no-front-space))))
-      (delete-char 1))))
-
-(ad-activate 'fixup-whitespace)
+  (when (or (looking-at-p " \\(?:;\\|,\\|->\\|::\\)")
+            (save-excursion
+              (forward-char -2)
+              (looking-at-p "->\\|::")))
+    (delete-char 1)))
 
 ;;;###autoload
 (progn

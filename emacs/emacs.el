@@ -138,9 +138,6 @@
   '(python-honour-comment-indentation nil)
   '(python-use-skeletons nil)
 
-  ;; espresso mode
-  '(js-indent-level 2)
-
   ;; lisp mode
   '(lisp-indent-offset 2)
   )
@@ -172,12 +169,6 @@
 (autoload 'yaml-mode "yaml-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
-
-;; rjsx-mode
-(autoload 'rjsx-mode "rjsx-mode" nil t)
-(add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
-(add-to-list 'auto-mode-alist '("\\.es6\\'" . rjsx-mode))
-(setq js-switch-indent-offset 2)
 
 ;; use js-mode for .json files
 (add-to-list 'auto-mode-alist '("\\.json\\'" . js-mode))

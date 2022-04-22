@@ -1,10 +1,9 @@
+# override font size
+font pango:DejaVu Sans Mono 8
 
 # display workspace bar
 bar {
-  output eDP1
-  status_command i3status -c ~/.profile.d/i3/i3status.teclador.conf
-  separator_symbol " / "
-  colors {
-    separator #ffffff
-  }
+  output eDP-1
+  font pango:DejaVu Sans Mono, Font Awesome 5 Free 9
+  status_command i3status-rs ~/.profile.d/i3/i3status.teclador.conf
 }

@@ -25,3 +25,9 @@ ln -s ../../../.profile.d/fontconfig/30-croscore-aliases.conf ~/.config/fontconf
 
 # gnupg
 ln -s ../.profile.d/gpg/gpg.conf ~/.gnupg/gpg.conf
+
+# gtk
+mkdir -p ~/.config/gtk-3.0
+ln -s ../../.profile.d/X11/gtk-3.0-settings.ini ~/.config/gtk-3.0/settings.ini
+ln -s ../../.profile.d/X11/gtk-3.0.css ~/.config/gtk-3.0/gtk.css
+ln -s .profile.d/X11/gtkrc-2.0 ~/.gtkrc-2.0

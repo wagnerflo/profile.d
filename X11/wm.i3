@@ -9,5 +9,8 @@ ${_prfdir}/i3/mkconfig
 # WM specific environment
 export XDG_CURRENT_DESKTOP=GNOME
 
+# Theming
+export QT_STYLE_OVERRIDE=kvantum
+
 # start window manager
 exec dbus-launch --exit-with-session i3 -c "${_prfdir}/i3/config.local" -V >> "${_logdir}/i3.log" 2>&1

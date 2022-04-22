@@ -22,9 +22,8 @@ try 3f xrdb -merge ${_prfdir}/X11/resources.${PROFILE_ENV}
 try 2f xmodmap ${_prfdir}/X11/modmap.${PROFILE_ENV}
 
 # start agents
-[ -x "$(which gpg-agent)" ]    && eval "$(gpg-agent --daemon)"
-[ -x "$(which ssh-agent)" ]    && eval "$(ssh-agent)"
-[ -x "$(which xscreensaver)" ] && xscreensaver -no-splash &
+[ -x "$(which gpg-agent)" ] && eval "$(gpg-agent --daemon)"
+[ -x "$(which ssh-agent)" ] && eval "$(ssh-agent)"
 
 # custom profile
 if [ -f ${_prfdir}/X11/xprofile.${PROFILE_ENV} ]; then
@@ -36,9 +35,11 @@ env | sort | sed 's/^/  /'
 
 if [ -x "$(which display)" -a -d ~/.local/share/wallpapers ]; then
     echo "Setting background image"
-    display -window root \
-            $(find ~/.local/share/wallpapers -maxdepth 1 -type f | \
-                  sort -R | head -n1)
+    export WALLPAPER=$( \
+        find ~/.local/share/wallpapers -maxdepth 1 -type f | \
+            sort -R | head -n1 \
+    )
+    display -window root ${WALLPAPER}
 fi
 
 echo "Executing window manager"

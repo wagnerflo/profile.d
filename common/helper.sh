@@ -27,15 +27,3 @@ try() {
 
     "${@}"
 }
-
-find_path () {
-    local _option
-
-    for _option in ${@}; do
-        _option="$(command -v ${_option})"
-        if [ $? -eq 0 ]; then
-            echo ${_option}
-            return
-        fi
-    done
-}

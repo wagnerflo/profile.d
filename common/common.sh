@@ -56,10 +56,8 @@ export HOSTNAME
 export PROFILE_ENV
 
 # create symlinks
-if [ ${PROFILE_ENV} != "unknown" ]
-then
-    for _item in git/gitconfig tmux/tmux.conf
-    do
+if [ ${PROFILE_ENV} != "unknown" ]; then
+    for _item in git/gitconfig tmux/tmux.conf; do
         _local=${_prfdir}/${_item}.local
         _custom=${_prfdir}/${_item}.${PROFILE_ENV}
 

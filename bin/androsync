@@ -1,0 +1,34 @@
+# -*- mode: sh -*-
+
+#####################################################################
+# profile/bin/androsync: android file synchronization
+
+. ~/.profile.d/common/common.sh
+
+main () {
+    _dev=${1}
+    _conf="${HOME}/.profile.d/bin/androsync.${_dev}.conf"
+
+    if [ -z "${_dev}" ]; then
+        echo "usage: ${0} device"
+        exit 1
+    fi
+
+    if [ ! -f "${_conf}" ]; then
+        echo "configuration file ${_conf} missing."
+        exit 1
+    fi
+
+    _dest=$(sed -n 's/^#\s*destination:\s*\(.*\)/\1/p' "${_conf}" | \
+                head -n1)
+
+    rsync -rvP --size-only --inplace \
+          --no-owner --no-group --no-perms \
+          --del --delete-excluded \
+          --filter="merge ${_conf}" \
+          --filter="hide /**" \
+          --filter="protect /**" \
+          ${HOME}/ ${_dev}:${_dest}
+}
+
+main "${@}"

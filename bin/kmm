@@ -92,6 +92,7 @@ main () {
                     nocache) echo -n ",cache=none";;
                     writeback|wb) echo -n ",cache=writeback";;
                     unsafe) echo -n ",cache=unsafe";;
+                    discard) echo -n ",discard=on";;
                 esac
             done
             echo -n " "

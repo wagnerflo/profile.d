@@ -1,2 +1,12 @@
-ripcd () { icedax -D /dev/sr0 -x -paranoia -H -B; }
 splitcue () { cue2tracks -R -c flac -o "%N - %t" "$1"; }
+
+riploop () {
+    while true; do
+        echo "Waiting for medium..."
+        while hwinfo --cdrom | grep -q "no medium"; do
+            sleep 5
+        done
+        whipper -e never cd rip --unknown --cdr --keep-going
+        eject -r /dev/cdrom
+    done
+}

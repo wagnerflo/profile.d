@@ -8,9 +8,6 @@ ln -s .profile.d/emacs/emacs.el ~/.emacs
 # git
 ln -s .profile.d/git/gitconfig ~/.gitconfig
 
-# mercurial
-ln -s .profile.d/mercurial/hgrc ~/.hgrc
-
 # X11
 ln -s .profile.d/X11/xinitrc ~/.xinitrc
 ln -s .profile.d/X11/xinitrc ~/.xsession

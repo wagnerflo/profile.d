@@ -49,6 +49,11 @@ if ! echo ":${PATH}:" | grep -q ":${_prfdir}/bin:"; then
     export PATH="${PATH}:${_prfdir}/bin"
 fi
 
+# cargo
+if [ -e ~/.cargo/env ]; then
+    . ~/.cargo/env
+fi
+
 # load custom shell config
 try 2f . ${_prfdir}/shell/profile_sh.${PROFILE_ENV}
 try 2f . ${_prfdir}/shell/profile_sh.unversioned

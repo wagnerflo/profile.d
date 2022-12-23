@@ -1,5 +1,6 @@
-# {ba,z}sh
+# shells
 ln -s .profile.d/shell/profile_zsh ~/.zshrc
+ln -s .profile.d/shell/profile_zsh ~/.zshenv
 ln -s .profile.d/shell/profile_sh ~/.profile
 
 # emacs

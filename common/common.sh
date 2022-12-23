@@ -17,7 +17,7 @@ export LC_ALL="${LANG}"
 # determine host and domain name
 for _item in /etc/os-release /usr/lib/os-release; do
     if [ -e "${_item}" ]; then
-        eval OS_RELEASE_$(grep ^ID "${_item}")
+        eval OS_RELEASE_$(grep "^ID" "${_item}")
         break
     fi
 done

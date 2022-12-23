@@ -157,6 +157,11 @@
       (setq sh-basic-offset 8)
       (setq indent-tabs-mode t))))
 
+;; rust mode
+(setq rust-load-optional-libraries nil)
+(autoload 'rust-mode "rust-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+
 ;; markdown mode
 (autoload 'markdown-mode "markdown-mode" nil t)
 (autoload 'gfm-mode "markdown-mode" nil t)

@@ -10,3 +10,7 @@ riploop () {
         eject -r /dev/cdrom
     done
 }
+
+steam () {
+    GDK_SCALE=2 /usr/bin/steam
+}

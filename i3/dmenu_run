@@ -1,10 +1,2 @@
 #!/bin/sh
-
-# special case for bash
-if [ "${SHELL}" = "${SHELL%bash}" ]; then
-    _shell="${SHELL}"
-else
-    _shell="${SHELL} -l"
-fi
-
-dmenu_path | dmenu "$@" | ${_shell:-"/bin/sh"} &
+dmenu_path | dmenu "$@" | ${SHELL:-/bin/sh} -l &

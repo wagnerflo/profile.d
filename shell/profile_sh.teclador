@@ -1,3 +1,5 @@
+# -*- mode: sh -*-
+
 splitcue () { cue2tracks -R -c flac -o "%N - %t" "$1"; }
 
 riploop () {

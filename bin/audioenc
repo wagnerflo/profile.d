@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+
+from multiprocessing.pool import ThreadPool
+from pathlib import Path
+from sys import argv, exit
+
+class AudioEncode:
+    def run(self, path):
+        from subprocess import Popen, DEVNULL, PIPE, STDOUT
+
+        fn = Path(path)
+        outpath = fn.with_suffix(".opus")
+        fn = fn.resolve()
+        outfn = outpath.resolve()
+
+        if outfn.exists():
+            print("[", path, "]", "output file", outpath, "already exists; skipping")
+            return
+
+        if not fn.exists():
+            print("[", path, "]", "doesn't exist; skipping")
+            return
+
+        if not fn.is_file():
+            print("[", path, "]", "is not a file; skipping")
+            return
+
+        print("[", path, "]", "encoding to OPUS")
+        sox = Popen(
+            (
+                "sox",
+                # input
+                fn,
+                # output as 24 bit FLAC compression level 0 to stdout
+                "-t", "flac", "-C", "0", "-b", "24", "-",
+                # make headroom available for rate
+                "gain", "-h",
+                # rate convert to 48 kHz
+                "rate", "-v", "-L", "48k",
+                # normalize to -3 dB
+                "gain", "-n", "-3",
+            ),
+            stdin=DEVNULL,
+            stdout=PIPE,
+        )
+        opusenc = Popen(
+            (
+                "opusenc",
+                "--quiet",
+                "--discard-pictures",
+                "--bitrate", "182",
+                "-", fn.with_suffix(".opus"),
+            ),
+            stdin=sox.stdout,
+            stderr=STDOUT,
+        )
+        opusenc.wait()
+
+        print("[", path, "]", "saved as", outpath)
+        return outpath
+
+class ReplayGain:
+    def __init__(self):
+        from gi import require_version
+
+        require_version("GLib", "2.0")
+        require_version("Gst", "1.0")
+
+        from gi.repository import GLib
+        from gi.repository import Gst
+
+        if not Gst.is_initialized():
+            Gst.init_check()
+
+        self.TAGMAP = {
+            Gst.TAG_REFERENCE_LEVEL: ("replaygain_reference_loudness", "{:.2f} dB"),
+            Gst.TAG_TRACK_GAIN:      ("replaygain_track_gain",         "{:.2f} dB"),
+            Gst.TAG_TRACK_PEAK:      ("replaygain_track_peak",         "{:.6f}"),
+        }
+
+    def run(self, path):
+        from gi.repository import GLib
+        from gi.repository import Gst
+        from mutagen import id3, mp3, File as TagFile
+
+        fn = Path(path).resolve()
+
+        if not fn.exists():
+            print("[", path, "]", "doesn't exist; skipping")
+            return
+
+        if not fn.is_file():
+            print("[", path, "]", "is not a file; skipping")
+            return
+
+        mainloop = GLib.MainLoop()
+        pipe = Gst.Pipeline()
+
+        decode = Gst.ElementFactory.make("uridecodebin", "decode")
+        convert = Gst.ElementFactory.make("audioconvert", "convert")
+        resample = Gst.ElementFactory.make("audioresample", "resample")
+        analysis = Gst.ElementFactory.make("rganalysis", "analysis")
+        fakesink = Gst.ElementFactory.make("fakesink", "fakesink")
+
+        decode.connect(
+            "pad-added",
+            lambda dbin, pad: pad.link(convert.get_static_pad("sink"))
+        )
+
+        for el in (decode, convert, resample, analysis, fakesink):
+            pipe.add(el)
+
+        convert.link(resample)
+        resample.link(analysis)
+        analysis.link(fakesink)
+
+        results = {}
+
+        def bus_message(bus, message):
+            match message.type:
+                case Gst.MessageType.EOS:
+                    pipe.set_state(Gst.State.NULL)
+                    mainloop.quit()
+
+                case Gst.MessageType.ERROR:
+                    gerror,gdebug = message.parse_error()
+                    results.update({
+                        "gerror": gerror,
+                        "gdebug": gdebug,
+                    })
+                    pipe.set_state(Gst.State.NULL)
+                    mainloop.quit()
+
+                case Gst.MessageType.TAG:
+                    tags = message.parse_tag()
+                    for tag,(key,fmt) in self.TAGMAP.items():
+                        ok,val = tags.get_double(tag)
+                        if ok:
+                            results[key] = fmt.format(val)
+
+        bus = pipe.get_bus()
+        bus.add_signal_watch()
+        bus.connect("message", bus_message)
+
+        analysis.set_property("forced", True)
+        decode.set_property("uri", GLib.filename_to_uri(str(fn)))
+
+        print("[", path, "]", "starting replay-gain analysis")
+        pipe.set_state(Gst.State.PLAYING)
+        mainloop.run()
+
+        gerror = results.get("gerror")
+        gdebug = results.get("gdebug")
+
+        if gerror or gdebug:
+            if gerror:
+                print("[", path, "]", "gstreamer error:", gerror.message)
+            else:
+                print("[", path, "]", "gstreamer error; debug: {")
+                print(gdebug)
+                print("}")
+            return
+
+        print("[", path, "]", "updating tags")
+        fp = TagFile(fn)
+
+        match fp:
+            case mp3.MP3():
+                if fp.tags is None:
+                    fp.add_tags()
+                fp.tags.delall("RVA2:track")
+                fp.tags.delall("RVA2:album")
+                fp.tags.delall("TXXX:replaygain_track_gain")
+                fp.tags.delall("TXXX:replaygain_album_gain")
+                for key,val in results.items():
+                    fp.tags.add(
+                        id3.TXXX(
+                            desc     = key,
+                            encoding = id3.Encoding.UTF8,
+                            text     = val,
+                        )
+                    )
+
+            case _:
+                fp.update(results)
+                fp.pop("replaygain_album_gain", None)
+                fp.pop("replaygain_album_peak", None)
+                fp.pop("r128_track_gain", None)
+
+        fp.save()
+
+        return fn
+
+if __name__ == "__main__":
+    prog,*paths = argv
+
+    if not paths:
+        exit(0)
+
+    rg = ReplayGain()
+
+    match Path(prog).name:
+        case "rganalysis":
+            def run(path):
+                rg.run(path)
+
+        case _:
+            ac = AudioEncode()
+            def run(path):
+                if outfn := ac.run(path):
+                    rg.run(outfn)
+
+    with ThreadPool() as pool:
+        pool.map(run, paths)

@@ -1,0 +1,244 @@
+#!/usr/bin/env python3
+
+from concurrent.futures import (
+    ThreadPoolExecutor,
+    as_completed,
+)
+from Crypto.Cipher import Blowfish
+from functools import partial
+from json import loads as json_decode
+from hashlib import md5
+from mutagen import File as TagFile
+from pathlib import Path
+from re import compile as regex
+from requests import Session
+from sys import argv, exit
+from threading import local as thread_local
+
+BLOWFISH_IV = b"\x00\x01\x02\x03\x04\x05\x06\x07"
+SECRET_DECRYPT = b"g4el58wc0zvf9na1"
+BLOCK_SIZE = 2048
+
+DATA_RE = regex(r'({"DATA":{.*}})</script>')
+
+DATE_TAGS = (
+    "ORIGINAL_RELEASE_DATE",
+    "PHYSICAL_RELEASE_DATE",
+    "DIGITAL_RELEASE_DATE",
+)
+
+def main(script, urls):
+    if not urls:
+        return 0
+
+    arlfile = script.with_suffix(".arl")
+
+    if not arlfile.exists():
+        print(f"ARL file '{arlfile}' missing")
+        return 1
+
+    if not arlfile.is_file():
+        print(f"'{arlfile}' is not a regular file")
+        return 1
+
+    arl = arlfile.read_text().strip()
+
+    with Session() as root_session:
+        root_session.headers.update({
+            "User-Agent": ( "Mozilla/5.0 (X11; Linux x86_64) "
+                            "AppleWebKit/537.36 (KHTML, like Gecko) "
+                            "Chrome/68.0.3440.106 Safari/537.36" ),
+        })
+        root_session.cookies.update({
+            "arl": arl,
+            "comeback": "1",
+        })
+
+        resp = root_session.get(
+            "https://www.deezer.com/ajax/gw-light.php",
+            params={
+                "api_version": "1.0",
+                "api_token": "",
+                "method": "deezer.getUserData",
+            }
+        )
+
+        userdata = resp.json().get("results")
+        useropts = userdata["USER"]["OPTIONS"]
+
+        if not useropts["web_lossless"] and \
+           not useropts["mobile_lossless"]:
+            print("account can't download lossless audio")
+            return 1
+
+        tlocal = thread_local()
+
+        def get_thread_session():
+            try:
+                session = tlocal.session
+            except AttributeError:
+                session = tlocal.session = Session()
+                session.headers.update(root_session.headers)
+                session.cookies.update(root_session.cookies)
+            return session
+
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            songs = as_completed(
+                pool.submit(
+                    get_songs,
+                    pool, get_thread_session,
+                    useropts["license_token"], url
+                )
+                for url in urls
+            )
+
+            downloads = as_completed(
+                pool.submit(
+                    download_song,
+                    get_thread_session, *song
+                )
+                for items in songs
+                for song in items.result()
+            )
+
+            for fut in downloads:
+                fut.result()
+
+def a2b(s):
+    return s.encode("ascii")
+
+def md5hex(b):
+    return a2b(md5(b).hexdigest())
+
+def decrypt(resp, filename, decrypt_key):
+    with filename.open("wb") as fp:
+        for i,data in enumerate(resp.iter_content(BLOCK_SIZE)):
+            # only full blocks and every third is encrypted
+            if len(data) == BLOCK_SIZE and i % 3 == 0:
+                data = (
+                    Blowfish
+                      .new(decrypt_key, Blowfish.MODE_CBC, BLOWFISH_IV)
+                      .decrypt(data)
+                )
+
+            fp.write(data)
+
+def set_metadata(filename, song):
+    fp = TagFile(filename)
+    if title := song.get("SNG_TITLE"):
+        fp["title"] = title
+    if album := song.get("ALB_TITLE"):
+        fp["album"] = album
+    for tag in DATE_TAGS:
+        if date := song.get(tag):
+            fp["date"] = date[:4]
+            break
+    artists = ", ".join(
+        name for artist in song.get("ARTISTS", [])
+        if (name := artist.get("ART_NAME", None))
+    )
+    if artists:
+        fp["artist"] = artists
+    if tracknum := song.get("TRACK_NUMBER"):
+        fp["tracknumber"] = str(int(tracknum))
+    fp.save()
+
+def download_song(get_session, song, urls):
+    session = get_session()
+    filename = Path(song["SNG_ID"] + ".flac")
+    songid_md5 = md5hex(a2b(song["SNG_ID"]))
+    decrypt_key = bytes(
+        songid_md5[i] ^ songid_md5[i + 16] ^ SECRET_DECRYPT[i]
+        for i in range(16)
+    )
+
+    print(f"downloading {filename}")
+
+    for url in urls:
+        resp = session.get(url["url"], stream=True)
+        if resp.status_code != 200:
+            continue
+        try:
+            decrypt(resp, filename, decrypt_key)
+            set_metadata(filename, song)
+        except KeyboardInterrupt:
+            filename.unlink(missing_ok=True)
+            raise
+        except:
+            filename.unlink(missing_ok=True)
+            continue
+        else:
+            break
+
+def get_songs(pool, get_session, license_token, url):
+    session = get_session()
+
+    if (match := DATA_RE.search(session.get(url).text)) is None:
+        print(url, "couldn't find page data")
+        return []
+
+    if (pagedata := json_decode(match.group(1))) is None:
+        print("invalid page data")
+        return []
+
+    res = []
+    songs = []
+
+    match pagedata["DATA"]["__TYPE__"]:
+        case "album":
+            for song in pagedata["SONGS"]["data"]:
+                for tag in DATE_TAGS:
+                    song[tag] = pagedata["DATA"].get(tag)
+                songs.append(song)
+
+        case "playlist":
+            for song in pagedata["SONGS"]["data"]:
+                print(song['SNG_ID'], song['SNG_TITLE'])
+            futs = as_completed(
+                pool.submit(
+                    get_songs,
+                    pool, get_session, license_token,
+                    f"https://www.deezer.com/de/track/{song['SNG_ID']}"
+                )
+                for song in pagedata["SONGS"]["data"]
+            )
+            for fut in futs:
+                res.extend(fut.result())
+
+        case "song":
+            songs.append(pagedata["DATA"])
+
+    if not songs:
+        return res
+
+    resp = session.post(
+        "https://media.deezer.com/v1/get_url",
+        json={
+            "license_token": license_token,
+            "track_tokens": [
+                song["TRACK_TOKEN"] for song in songs
+            ],
+            "media": [{
+                "type": "FULL",
+                "formats": [{
+                    "format": "FLAC",
+                    "cipher": "BF_CBC_STRIPE",
+                }],
+            }],
+        },
+    )
+    data = resp.json()["data"]
+
+    for song,urls in zip(songs, data):
+        if not urls.get("media"):
+            print(f"FLAC not available for song {song['SNG_ID']}")
+        else:
+            res.append((song, urls["media"][0]["sources"]))
+
+    return res
+
+if __name__ == "__main__":
+    try:
+        exit(main(Path(argv[0]).resolve(), argv[1:]) or 0)
+    except KeyboardInterrupt:
+        pass

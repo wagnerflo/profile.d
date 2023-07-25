@@ -65,7 +65,7 @@ def audioenc(path):
             "--quiet",
             "--discard-pictures",
             "--bitrate", "182",
-            "-", fn.with_suffix(".opus"),
+            "-", outfn,
         ),
         stdin=sox.stdout,
         stderr=STDOUT,
@@ -73,6 +73,12 @@ def audioenc(path):
 
     with sox, opusenc:
         pass
+
+    fp = TagFile(outfn)
+    fp.pop("comment", None)
+    fp.pop("encoder", None)
+    fp.pop("encoder_options", None)
+    fp.save()
 
     print("[", path, "]", "saved as", outpath)
     return outpath

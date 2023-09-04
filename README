@@ -33,4 +33,9 @@ ln -s .profile.d/X11/gtkrc-2.0 ~/.gtkrc-2.0
 
 # pipewire
 mkdir -p ~/.config/pipewire/pipewire.conf.d
-ln -s ../../../.profile.d/pipewire/10-autostart.conf ~/.config/pipewire/pipewire.conf.d
+mkdir -p ~/.config/wireplumber/main.lua.d
+mkdir -p ~/.config/wireplumber/scripts
+ln -s ../../../.profile.d/pipewire/51-autostart.conf ~/.config/pipewire/pipewire.conf.d
+ln -s ../../../.profile.d/pipewire/51-mixxx-devices.conf ~/.config/pipewire/pipewire.conf.d
+ln -s ../../../.profile.d/pipewire/51-mixxx-autoroute.lua ~/.config/wireplumber/main.lua.d
+ln -s ../../../.profile.d/pipewire/mixxx-autoroute.lua ~/.config/wireplumber/scripts

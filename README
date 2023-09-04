@@ -30,3 +30,7 @@ mkdir -p ~/.config/gtk-3.0
 ln -s ../../.profile.d/X11/gtk-3.0-settings.ini ~/.config/gtk-3.0/settings.ini
 ln -s ../../.profile.d/X11/gtk-3.0.css ~/.config/gtk-3.0/gtk.css
 ln -s .profile.d/X11/gtkrc-2.0 ~/.gtkrc-2.0
+
+# pipewire
+mkdir -p ~/.config/pipewire/pipewire.conf.d
+ln -s ../../../.profile.d/pipewire/10-autostart.conf ~/.config/pipewire/pipewire.conf.d

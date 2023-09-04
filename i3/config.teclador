@@ -1,3 +1,6 @@
+# run pipewire
+exec /usr/bin/pipewire
+
 # override font size
 font pango:DejaVu Sans Mono 8
 

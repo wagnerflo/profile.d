@@ -13,6 +13,10 @@ riploop () {
     done
 }
 
+mixxx () {
+    /usr/bin/pw-jack ${HOME}/sndwork/mixxx/build/mixxx
+}
+
 steam () {
     GDK_SCALE=2 /usr/bin/steam
 }

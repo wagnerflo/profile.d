@@ -111,9 +111,6 @@ bindsym $m+Shift+r exec --no-startup-id ~/.profile.d/i3/mkconfig; restart
 # exit i3 (logs you out of your X session)
 bindsym $m+Shift+e exec "i3-nagbar -t warning -m 'Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
-# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $m+Shift+w exec --no-startup-id ~/.profile.d/i3/mkworkspace
-
 # resize window (you can also use the mouse for that)
 mode "resize" {
   # shrink the window’s width

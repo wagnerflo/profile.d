@@ -14,44 +14,19 @@ _logdir=~/.local/log
 export LANG="en_US.UTF-8"
 export LC_ALL="${LANG}"
 
-# determine host and domain name
-for _item in /etc/os-release /usr/lib/os-release; do
-    if [ -e "${_item}" ]; then
-        eval OS_RELEASE_$(grep "^ID" "${_item}")
-        break
-    fi
-done
-case "${OS_RELEASE_ID}" in
-    freebsd)
-        _hostname=$( (. /etc/rc.subr; \
-                      load_rc_config hostname; \
-                      printf "%s" "${hostname}") )
-        ;;
-    void)
-        _hostname=$(cat /etc/hostname)
-        ;;
-esac
-
-HOSTNAME=${_hostname%%.*}
-
-if [ "${HOSTNAME}" = "${_hostname}" ]; then
-    _hostname=$(awk '/^127\.0\.0\.1/ { print $2 }' /etc/hosts)
-fi
-
-DOMAINNAME=${_hostname#*.}
+# determine host
+HOSTNAME=$(cat /etc/hostname)
+HOSTNAME=${HOSTNAME%%.*}
 
 # detect and set environment if not already
 if [ -z "${PROFILE_ENV}" ]; then
-    case "${HOSTNAME}.${DOMAINNAME}" in
-        teclador.*)            PROFILE_ENV=teclador;;
-        naclador.*)            PROFILE_ENV=naclador;;
-        *.ub.uni-tuebingen.de) PROFILE_ENV=ubt;;
-        *)                     PROFILE_ENV=unknown;;
+    case "${HOSTNAME}" in
+        teclador)  PROFILE_ENV=teclador;;
+        naclador)  PROFILE_ENV=naclador;;
+        *)         PROFILE_ENV=unknown;;
     esac
 fi
 
-export OS_RELEASE_ID
-export DOMAINNAME
 export HOSTNAME
 export PROFILE_ENV
 

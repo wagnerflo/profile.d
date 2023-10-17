@@ -1,6 +1,9 @@
 # run pipewire
 exec /usr/bin/pipewire
 
+# initially disable touchscreen
+exec --no-startup-id ~/.profile.d/i3/touchscreen disable
+
 # override font size
 font pango:DejaVu Sans Mono 8
 

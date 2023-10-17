@@ -9,6 +9,9 @@ set $m Mod4
 # use Mouse+$m to drag floating windows to their wanted position
 floating_modifier $m
 
+# special keys
+bindsym Help exec --no-startup-id ~/.profile.d/i3/touchscreen toggle
+
 # start stuff
 bindsym $m+Return exec urxvt
 bindsym $m+e exec urxvt -e emacs -nw

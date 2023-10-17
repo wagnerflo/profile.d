@@ -1,0 +1,24 @@
+#!/bin/sh
+
+DEV="ELAN901C:00 04F3:4048"
+
+case $1 in
+    toggle)
+        if xinput list-props "${DEV}" | grep -i "device enabled" | \
+                cut -d: -f2 | grep -q 1; then
+            $0 disable
+        else
+            $0 enable
+        fi
+        ;;
+
+    disable)
+        xinput disable "${DEV}"
+        ;;
+
+    enable)
+        xinput enable "${DEV}"
+        ;;
+esac
+
+

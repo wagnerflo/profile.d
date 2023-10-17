@@ -1,5 +1,5 @@
 # run pipewire
-exec /usr/bin/pipewire
+exec --no-startup-id /usr/bin/pipewire
 
 # initially disable touchscreen
 exec --no-startup-id ~/.profile.d/i3/touchscreen disable

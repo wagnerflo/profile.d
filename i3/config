@@ -15,7 +15,7 @@ bindsym Help exec --no-startup-id ~/.profile.d/i3/touchscreen toggle
 # start stuff
 bindsym $m+Return exec urxvt
 bindsym $m+e exec urxvt -e emacs -nw
-bindsym $m+m exec urxvt -bg black -e alsamixer
+bindsym $m+m exec urxvt -e pulsemixer
 bindsym $m+dead_circumflex exec --no-startup-id ~/.profile.d/i3/dmenu_run
 bindsym $m+asciicircum exec --no-startup-id ~/.profile.d/i3/dmenu_run
 bindsym Control+Mod1+Delete exec --no-startup-id ~/.profile.d/i3/lock_screen

@@ -213,6 +213,11 @@
   (lambda ()
     (setq-local completion-at-point-functions nil)))
 
+;; lua-mode
+(autoload 'lua-mode "lua-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
+(add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
+
 ;; commandline switch for ediff mode
 (add-to-list 'command-switch-alist
   '("-diff" . (lambda (switch)

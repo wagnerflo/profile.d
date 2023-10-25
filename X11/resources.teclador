@@ -1,4 +1,4 @@
-Xft.dpi: 192
+Xft.dpi: 165
 Xft.autohint: 0
 Xft.lcdfilter: lcddefault
 Xft.hintstyle: hintfull
@@ -9,4 +9,4 @@ Xft.rgba: rgb
 Xcursor.theme: Adwaita
 Xcursor.size: 40
 
-urxvt*.font: xft:DejaVu Sans Mono:size=9
+urxvt*.font: xft:DejaVu Sans Mono:size=8

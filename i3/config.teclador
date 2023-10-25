@@ -1,15 +1,12 @@
 # run pipewire
 exec --no-startup-id /usr/bin/pipewire
 
-# initially disable touchscreen
-exec --no-startup-id ~/.profile.d/i3/touchscreen disable
-
 # override font size
-font pango:DejaVu Sans Mono 8
+font pango:DejaVu Sans Mono 7.5
 
 # display workspace bar
 bar {
   output eDP-1
-  font pango:DejaVu Sans Mono, Font Awesome 5 Free 9
+  font pango:DejaVu Sans Mono, Font Awesome 5 Free 7.5
   status_command i3status-rs ~/.profile.d/i3/i3status.teclador.conf
 }

@@ -190,6 +190,8 @@ main () {
                 bios)    _opts="${_opts} -bios "${_vmdir}/${_file}"";;
                 cpu.*)   _opts="${_opts} $(pcpu "${_file#cpu.}")";;
                 mem.*)   _opts="${_opts} $(pmem "${_file#mem.}")";;
+                machine.*)
+                    _opts="${_opts} -M ${_file#machine}";;
                 rtc.*)   _opts="${_opts} $(prtc "${_file#rtc.}")";;
                 drive.*) _opts="${_opts} $(pdrive "${_file}")";;
                 usbdevice.*)

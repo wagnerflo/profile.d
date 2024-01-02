@@ -1,7 +1,7 @@
 # i3 config file (v4)
 
 # set font and size
-font pango:DejaVu Sans Mono 9
+font pango:DejaVu Sans Mono 7.5
 
 # variables
 set $m Mod4
@@ -144,3 +144,12 @@ bindsym $m+r mode "resize"
 for_window [class="qemu"] floating enable
 for_window [instance="^pinentry"] floating enable
 for_window [instance="claws-mail" window_role="message_search"] floating enable
+
+# run pipewire
+exec --no-startup-id /usr/bin/pipewire
+
+# display workspace bar
+bar {
+  font pango:DejaVu Sans Mono, Font Awesome 5 Free 7.5
+  status_command i3status-rs ~/.profile.d/i3/i3status.conf
+}

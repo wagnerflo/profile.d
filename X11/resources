@@ -1,4 +1,4 @@
-urxvt*.font: 8x13
+urxvt*.font: xft:DejaVu Sans Mono:size=8
 urxvt*.loginShell: true
 urxvt*.scrollBar: false
 urxvt*.saveLines: 20000
@@ -11,3 +11,14 @@ urxvt.vt100.geometry: 81x25
 urxvt.vt100.termName: vt100
 
 urxvt.small.font: 6x12
+
+Xft.dpi: 165
+Xft.autohint: 0
+Xft.lcdfilter: lcddefault
+Xft.hintstyle: hintfull
+Xft.hinting: 1
+Xft.antialias: 1
+Xft.rgba: rgb
+
+Xcursor.theme: Adwaita
+Xcursor.size: 40

@@ -1,2 +1,0 @@
-new-session -d -s emacs+config -n emacs 'emacs -nw -disable-exit p/config.ub'
-set -t emacs+config status off

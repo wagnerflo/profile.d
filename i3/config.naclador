@@ -1,9 +1,0 @@
-# display workspace bar
-bar {
-  output HDMI2
-  status_command i3status -c ~/.profile.d/i3/i3status.conf
-  separator_symbol " / "
-  colors {
-    separator #ffffff
-  }
-}

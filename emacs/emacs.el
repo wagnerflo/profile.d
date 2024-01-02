@@ -245,12 +245,3 @@
 ;; provide a commandline option to disable the exit keybinding
 (setq command-switch-alist
   '(("disable-exit" . (lambda (arg) (disable-exit)))))
-
-;; system local config
-(let
-  ((filename
-     (expand-file-name
-       (concat "~/.profile.d/emacs/emacs." (getenv "PROFILE_ENV") ".el"))))
-  (if
-    (file-readable-p filename)
-    (load-file filename)))

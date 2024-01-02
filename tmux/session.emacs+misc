@@ -1,2 +1,0 @@
-new-session -d -s emacs+misc -n emacs 'emacs -nw -disable-exit p'
-set -t emacs+misc status off

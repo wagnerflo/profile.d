@@ -15,20 +15,11 @@ echo "--------------------------------------------------------------------------
 echo "Starting $(hostname):${0} at $(date)"
 
 # load X resources
-       xrdb -merge ${_prfdir}/X11/resources
-try 3f xrdb -merge ${_prfdir}/X11/resources.${PROFILE_ENV}
-
-# apply modmap
-try 2f xmodmap ${_prfdir}/X11/modmap.${PROFILE_ENV}
+xrdb -merge ${_prfdir}/X11/resources
 
 # start agents
 [ -x "$(which gpg-agent)" ] && eval "$(gpg-agent --daemon)"
 [ -x "$(which ssh-agent)" ] && eval "$(ssh-agent)"
-
-# custom profile
-if [ -f ${_prfdir}/X11/xprofile.${PROFILE_ENV} ]; then
-    . ${_prfdir}/X11/xprofile.${PROFILE_ENV}
-fi
 
 echo "Environment is:"
 env | sort | sed 's/^/  /'
@@ -42,5 +33,13 @@ if [ -x "$(which display)" -a -d ~/.local/share/wallpapers ]; then
     display -window root ${WALLPAPER}
 fi
 
-echo "Executing window manager"
-try 2e exec ${_prfdir}/X11/wm.${PROFILE_ENV}
+# WM specific environment
+export XDG_CURRENT_DESKTOP=GNOME
+
+# Theming
+export QT_STYLE_OVERRIDE=kvantum
+
+# start window manager
+echo "Starting window manager"
+exec dbus-launch --exit-with-session \
+     i3 -c "${_prfdir}/i3/config" -V >> "${_logdir}/i3.log" 2>&1

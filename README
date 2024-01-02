@@ -37,5 +37,5 @@ mkdir -p ~/.config/wireplumber/main.lua.d
 mkdir -p ~/.config/wireplumber/scripts
 ln -s ../../../.profile.d/pipewire/51-autostart.conf ~/.config/pipewire/pipewire.conf.d
 ln -s ../../../.profile.d/pipewire/51-mixxx-devices.conf ~/.config/pipewire/pipewire.conf.d
-ln -s ../../../.profile.d/pipewire/51-mixxx-autoroute.lua ~/.config/wireplumber/main.lua.d
-ln -s ../../../.profile.d/pipewire/mixxx-autoroute.lua ~/.config/wireplumber/scripts
+ln -s ../../../.profile.d/wireplumber/51-autoroute.lua ~/.config/wireplumber/main.lua.d
+ln -s ../../../.profile.d/wireplumber/autoroute.lua ~/.config/wireplumber/scripts

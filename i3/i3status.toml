@@ -1,14 +1,16 @@
+[theme]
 theme = "solarized-dark"
+
+[icons]
 icons = "awesome5"
 
 [[block]]
 block = "memory"
-display_type = "memory"
-format_mem = "{mem_used_percents}"
-format_swap = "{swap_used_percents}"
+format = " $icon $mem_used_percents.eng(w:2)"
 
 [[block]]
 block = "cpu"
+format = " $icon $utilization.eng(w:2) "
 interval = 1
 
 [[block]]
@@ -17,10 +19,8 @@ driver = "pulseaudio"
 
 [[block]]
 block = "battery"
-driver = "upower"
-format = "{percentage}"
 
 [[block]]
 block = "time"
 interval = 5
-format = "%Y-%m-%d %H:%M"
+format = " $icon $timestamp.datetime(f:'%Y-%m-%d %H:%M') "

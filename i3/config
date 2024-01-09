@@ -151,5 +151,5 @@ exec --no-startup-id /usr/bin/pipewire
 # display workspace bar
 bar {
   font pango:DejaVu Sans Mono, Font Awesome 5 Free 7.5
-  status_command i3status-rs ~/.profile.d/i3/i3status.conf
+  status_command i3status-rs ~/.profile.d/i3/i3status.toml
 }

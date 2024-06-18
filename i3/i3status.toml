@@ -6,7 +6,7 @@ icons = "awesome5"
 
 [[block]]
 block = "memory"
-format = " $icon $mem_used_percents.eng(w:2)"
+format = " $icon $mem_used_percents.eng(w:2) "
 
 [[block]]
 block = "cpu"
@@ -19,6 +19,7 @@ driver = "pulseaudio"
 
 [[block]]
 block = "battery"
+driver = "upower"
 
 [[block]]
 block = "time"

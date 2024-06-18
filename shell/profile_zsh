@@ -67,11 +67,12 @@ if [ "${TERM}" != "dumb" ]; then
     chpwd () {
         if [ -d .pyenv ]; then
             export PYTHONUSERBASE="$(pwd)/.pyenv"
-            export PIP_USER=true
+            export PIP_USER=1
+            export PIP_BREAK_SYSTEM_PACKAGES=1
             path[1,0]="${PYTHONUSERBASE}/bin"
         elif [ -n "${PYTHONUSERBASE}" ]; then
             path=("${(@)path:#${PYTHONUSERBASE}/bin}")
-            unset PYTHONUSERBASE PIP_USER
+            unset PYTHONUSERBASE PIP_USER PIP_BREAK_SYSTEM_PACKAGES
         fi
     }
 else

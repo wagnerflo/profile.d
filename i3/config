@@ -144,6 +144,7 @@ bindsym $m+r mode "resize"
 for_window [class="qemu"] floating enable
 for_window [instance="^pinentry"] floating enable
 for_window [instance="claws-mail" window_role="message_search"] floating enable
+for_window [window_type="notification"] floating enable
 
 # run pipewire
 exec --no-startup-id /usr/bin/pipewire

@@ -110,14 +110,6 @@ function autoroute(args)
    end
 end
 
-local outputs = {
-   ["Mixxx Master"] = {
-      ["alsa_output" ..
-       ".usb-Native_Instruments_Traktor_Audio_2_MK2_0A110C6203068400-00" ..
-       ".analog-surround-40"] = { "playback_FL", "playback_FR" },
-   },
-}
-
 -- Master
 autoroute {
    from = Constraint { "port.alias", "matches", "Mixxx Master:*" },
@@ -141,7 +133,7 @@ autoroute {
 autoroute {
    from = Constraint { "port.alias", "matches", "Mixxx Headphones:*" },
    to = Constraint { "object.path", "matches",
-                                "bluez_output.98_D3_31_87_03_88.1:*" },
+                                "bluez_output.08_1E_46_C9_C2_68.1:*" },
    ports = {
       ["FL"] = "FL",
       ["FR"] = "FR"

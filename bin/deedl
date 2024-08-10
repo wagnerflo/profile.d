@@ -12,6 +12,7 @@ from mutagen import File as TagFile
 from pathlib import Path
 from re import compile as regex
 from requests import Session
+from subprocess import Popen, DEVNULL, PIPE, STDOUT
 from sys import argv, exit
 from threading import local as thread_local
 
@@ -25,6 +26,11 @@ DATE_TAGS = (
     "ORIGINAL_RELEASE_DATE",
     "PHYSICAL_RELEASE_DATE",
     "DIGITAL_RELEASE_DATE",
+)
+
+FORMATS = (
+    "FLAC",
+    "MP3_320",
 )
 
 def main(script, urls):
@@ -110,18 +116,16 @@ def a2b(s):
 def md5hex(b):
     return a2b(md5(b).hexdigest())
 
-def decrypt(resp, filename, decrypt_key):
-    with filename.open("wb") as fp:
-        for i,data in enumerate(resp.iter_content(BLOCK_SIZE)):
-            # only full blocks and every third is encrypted
-            if len(data) == BLOCK_SIZE and i % 3 == 0:
-                data = (
-                    Blowfish
-                      .new(decrypt_key, Blowfish.MODE_CBC, BLOWFISH_IV)
-                      .decrypt(data)
-                )
-
-            fp.write(data)
+def decrypt(resp, decrypt_key):
+    for i,data in enumerate(resp.iter_content(BLOCK_SIZE)):
+        # only full blocks and every third is encrypted
+        if len(data) == BLOCK_SIZE and i % 3 == 0:
+            data = (
+                Blowfish
+                .new(decrypt_key, Blowfish.MODE_CBC, BLOWFISH_IV)
+                .decrypt(data)
+            )
+        yield data
 
 def set_metadata(filename, song):
     fp = TagFile(filename)
@@ -143,7 +147,7 @@ def set_metadata(filename, song):
         fp["tracknumber"] = str(int(tracknum))
     fp.save()
 
-def download_song(get_session, song, urls):
+def download_song(get_session, song, fmt, urls):
     session = get_session()
     filename = Path(song["SNG_ID"] + ".flac")
     songid_md5 = md5hex(a2b(song["SNG_ID"]))
@@ -159,7 +163,28 @@ def download_song(get_session, song, urls):
         if resp.status_code != 200:
             continue
         try:
-            decrypt(resp, filename, decrypt_key)
+            if fmt == "FLAC":
+                with filename.open("wb") as fp:
+                    for block in decrypt(resp, decrypt_key):
+                        fp.write(block)
+
+            else:
+                with Popen(
+                    (
+                        "sox",
+                        # input
+                        "-t", "mp3", "-",
+                        # output as 24 bit FLAC compression level 0 to stdout
+                        "-t", "flac", "-C", "0", filename.resolve(),
+                        # normalize to -3 dB
+                        "gain", "-n", "-3",
+                    ),
+                    stdin=PIPE,
+                    stderr=STDOUT,
+                ) as proc:
+                    for block in decrypt(resp, decrypt_key):
+                        proc.stdin.write(block)
+
             set_metadata(filename, song)
         except KeyboardInterrupt:
             filename.unlink(missing_ok=True)
@@ -220,20 +245,28 @@ def get_songs(pool, get_session, license_token, url):
             ],
             "media": [{
                 "type": "FULL",
-                "formats": [{
-                    "format": "FLAC",
-                    "cipher": "BF_CBC_STRIPE",
-                }],
+                "formats": [
+                    { "cipher": "BF_CBC_STRIPE", "format": fmt }
+                    for fmt in FORMATS
+                ],
             }],
         },
     )
-    data = resp.json()["data"]
+    data = [
+        { fmt["format"]: fmt["sources"]
+          for fmt in song.get("media", []) }
+        for song in resp.json()["data"]
+    ]
 
     for song,urls in zip(songs, data):
-        if not urls.get("media"):
-            print(f"FLAC not available for song {song['SNG_ID']}")
+        for fmt in FORMATS:
+            if sources := urls.get(fmt, None):
+                break
+
+        if sources is None:
+            print(f"No FLAC or MP3_320 available for song {song['SNG_ID']}")
         else:
-            res.append((song, urls["media"][0]["sources"]))
+            res.append((song, fmt, sources))
 
     return res
 

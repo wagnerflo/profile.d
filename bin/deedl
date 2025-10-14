@@ -156,7 +156,7 @@ def download_song(get_session, song, fmt, urls):
         for i in range(16)
     )
 
-    print(f"downloading {filename}")
+    print(f"downloading {filename} ({fmt})")
 
     for url in urls:
         resp = session.get(url["url"], stream=True)

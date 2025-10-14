@@ -1,0 +1,39 @@
+#!/bin/sh
+
+tgt=$1
+mode=gray
+resolution=default
+shift
+
+_doscan () {
+    scanimage \
+        --device="${1}" \
+        --mode="${mode}" \
+        --resolution="${resolution}" \
+        --output-file="${HOME}/$(date +%Y%m%d_%H%M%S).png" \
+        --format=png \
+        --progress
+}
+
+for opt in "$@"; do
+    case $opt in
+        color)   mode=color ;;
+        hi|high) resolution=high ;;
+        max)     resolution=max ;;
+    esac
+done
+
+case "${tgt}" in
+    home)
+        case "${resolution}" in
+            default) resolution=300  ;;
+            high)    resolution=600  ;;
+            max)     resolution=1200 ;;
+        esac
+        _doscan escl:http://192.168.178.92:80
+        ;;
+    *)
+        echo "unknown scanner: ${tgt}" > /dev/stderr
+        exit 1
+        ;;
+esac

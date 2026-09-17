@@ -24,13 +24,13 @@ for opt in "$@"; do
 done
 
 case "${tgt}" in
-    home)
+    yog)
         case "${resolution}" in
             default) resolution=300  ;;
             high)    resolution=600  ;;
             max)     resolution=1200 ;;
         esac
-        _doscan escl:http://192.168.178.92:80
+        _doscan escl:http://yog.wfnet:80
         ;;
     *)
         echo "unknown scanner: ${tgt}" > /dev/stderr

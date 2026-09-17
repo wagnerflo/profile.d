@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; -*-
+
 (add-to-list 'load-path "~/.profile.d/emacs")
 (add-to-list 'load-path "~/.profile.d/emacs/php-mode")
 
@@ -19,10 +21,10 @@
 (setq-default show-trailing-whitespace t)
 
 ;; customized buffer switching
-(require 'swbuff)
-(setq swbuff-exclude-buffer-regexps '("^ .*" "^\\*.*\\*"))
-(defalias 'next-buffer 'swbuff-switch-to-next-buffer)
-(defalias 'previous-buffer 'swbuff-switch-to-previous-buffer)
+(require 'nswbuff)
+(setq nswbuff-exclude-buffer-regexps '("^ .*" "^\\*.*\\*"))
+(defalias 'next-buffer 'nswbuff-switch-to-next-buffer)
+(defalias 'previous-buffer 'nswbuff-switch-to-previous-buffer)
 
 ;; dired with single buffer mode
 (add-hook 'dired-load-hook

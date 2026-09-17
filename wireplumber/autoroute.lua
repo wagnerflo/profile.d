@@ -133,7 +133,7 @@ autoroute {
 autoroute {
    from = Constraint { "port.alias", "matches", "Mixxx Headphones:*" },
    to = Constraint { "object.path", "matches",
-                                "bluez_output.08_1E_46_C9_C2_68.1:*" },
+                                "bluez_output.84_AC_60_89_86_3A.1:*" },
    ports = {
       ["FL"] = "FL",
       ["FR"] = "FR"

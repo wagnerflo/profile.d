@@ -23,6 +23,8 @@
 ;; customized buffer switching
 (require 'nswbuff)
 (setq nswbuff-exclude-buffer-regexps '("^ .*" "^\\*.*\\*"))
+(setq nswbuff-clear-delay 1)
+(setq nswbuff-recent-buffers-first nil)
 (defalias 'next-buffer 'nswbuff-switch-to-next-buffer)
 (defalias 'previous-buffer 'nswbuff-switch-to-previous-buffer)
 

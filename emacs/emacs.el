@@ -187,6 +187,10 @@
 ;; use js-mode for .json files
 (add-to-list 'auto-mode-alist '("\\.json\\'" . js-mode))
 
+;; use js-mode for ucode
+(add-to-list 'auto-mode-alist '("\\.uc\\'" . js-mode))
+(add-to-list 'interpreter-mode-alist '("ucode" . js-mode))
+
 ;; web-mode
 (autoload 'web-mode "web-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.svelte\\'" . web-mode))

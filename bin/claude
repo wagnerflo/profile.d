@@ -1,0 +1,86 @@
+#!/bin/sh
+
+cmd=$1
+
+if [ -z "${cmd}" -o "${cmd}" = "--help" -o "${cmd}" = "-h" ]; then
+    echo "usage: $(basename $0) --rebuild | BRANCH [ARGS]"
+    exit 0
+fi
+
+shift 1
+
+case "${cmd}" in
+    --rebuild)
+        docker image rm claude
+        docker build -t claude - <<EOF
+FROM node:24-slim
+RUN \
+     apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y \
+       curl git gnupg patch \
+       python3 python3-pip \
+  && useradd -m -u 10000 -g 100 claude \
+  && npm install -g @anthropic-ai/claude-code
+WORKDIR /wrk
+USER claude
+ENTRYPOINT ["claude"]
+EOF
+        ;;
+    *)
+        BRANCH="claude.${cmd}"
+        GITTOP=$(git rev-parse --show-toplevel)
+        TGTDIR="${GITTOP}/${BRANCH}"
+        CLAUDEDIR="${GITTOP}/.claude"
+        SESSIONDIR="${CLAUDEDIR}/sessions.d"
+        SESSIONFILE="${SESSIONDIR}/${BRANCH}"
+        CONFJSON="${CLAUDEDIR}/claude.json"
+        CONFDIR="${CLAUDEDIR}/home.d"
+
+        [ -e "${CLAUDEDIR}" ] || mkdir "${CLAUDEDIR}"
+        [ -e "${CONFDIR}"   ] || mkdir "${CONFDIR}"
+        [ -e "${CONFJSON}"  ] || echo "{}" > "${CONFJSON}"
+
+        if [ -d "${TGTDIR}" ]; then
+            UUID=$(cat "${SESSIONFILE}" 2>/dev/null)
+            [ -z "${UUID}" ] || ARGS="--resume ${UUID}"
+        else
+            # clone repository
+            git clone . "${TGTDIR}"
+
+            # delete removed
+            ( git diff --name-status --diff-filter=R -z HEAD | sed -zn '2~3p'
+              git diff --name-only --diff-filter=D -z HEAD ) | \
+                sort -uz | \
+                xargs -0 -I {} rm "${TGTDIR}/{}"
+
+            # copy modified
+            ( git diff --name-status --diff-filter=R -z HEAD | sed -zn '0~3p'
+              git diff --name-only --diff-filter=AM -z HEAD
+              git ls-files -moz \
+                    --exclude-standard  \
+                    --exclude=.claude \
+                    --exclude='claude.*') | \
+                sort -uz | \
+                xargs -0 -I {} find {} -maxdepth 0 -print0 2>/dev/null | \
+                xargs -0 -I {} cp --parents {} "${TGTDIR}"
+
+            UUID=$(uuidgen)
+            mkdir -p "${SESSIONDIR}"
+            echo ${UUID} > "${SESSIONFILE}"
+            ARGS="--session-id ${UUID}"
+        fi
+
+        PROFILE=${HOME}/.profile.d/claude
+        DOTCLAUDE=/home/claude/.claude
+
+        docker run \
+            --rm -it \
+            -v $(readlink -f "${TGTDIR}"):/wrk \
+            -v "${CLAUDEDIR}/claude.json:/home/claude/.claude.json" \
+            -v "${CLAUDEDIR}/home.d:${DOTCLAUDE}" \
+            -v "${PROFILE}/settings.json:${DOTCLAUDE}/settings.json:ro" \
+            -u $(id -u):$(id -g) \
+            claude ${ARGS} "$@"
+        ;;
+esac
